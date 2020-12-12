@@ -31,7 +31,7 @@ module cp
                 case(1)
                     print*, 'type airfoil angle of attack -- AOA [deg]'
                     read*, alpha
-
+                    V = 1
                     x = 0
 
                 case(2)
@@ -48,7 +48,7 @@ module cp
                 
                 case(3)
                     call ask_angle(start_angle,end_angle,dim)
-
+                    V = 1
                     x = 0
 
                 case default 
@@ -674,9 +674,6 @@ module cp
         implicit none 
         
         ! generating a grid of measure points 
-        !   length = -0.5 : +1.5
-        !   height = -0.5 : +0.5
-        !   # of measure points = 5e+2 points each direction
         ! this grid can be expressed in a monodimensional array that contains 2 dimensional vectors 
         !   the procedure can be possible if it's used a type variable that describes a vector
         type :: array_type  
@@ -754,21 +751,15 @@ module cp
                 velocity(2) = velocity(2) + V*sin(alpha)
                 
                 ! writing data in VELfield.dat
-                
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
                            velocity(1)            , velocity(2), norm(velocity)
 
             end do
         end do
-            
-        print*, alpha
-        print*, V
 
         close(1)
    
         deallocate(grid)
     end subroutine compute_vel_field
-
-        
 
 end module cp   

@@ -45,12 +45,12 @@ program aeroHS
         
         print*, 'there are 3 different options:'
         print*, '   option 1 --> analize 1 airfoil'
-        print*, '                   1 --> compute Cp'
-        print*, '                   2 --> compute [Cp;Cl;velocity;pressure]'
+        print*, '                   1 --> compute  Cp'
+        print*, '                   2 --> compute [Cp; Cl; velocity; pressure]'
         print*, '   option 2 --> analize 2 airfoils'
-        print*, '                   1 --> [L;M]'
+        print*, '                   1 --> [L; M]'
         print*, '   option 3 --> analize ground effect'
-        print*, '                   1 --> [L;M]'
+        print*, '                   1 --> [L; M]'
         print*, 'type an option'
         read*,  selection_type 
 
@@ -58,7 +58,7 @@ program aeroHS
             
             call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection)
 
-            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil)
+            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
 
             ! computing matrix process
             call compute_matrix(matrix,PANEL_array,PANELsize)
@@ -67,7 +67,10 @@ program aeroHS
             
                 ! compute known vector properties from geometry and external flow 
                 allocate(vector(1:PANELsize))
-                call compute_vector(real(1.0,8),alpha,vector,PANEL_array,PANELsize)
+                ! because the alpha angle is already expressed in the airfoil geometry
+                !    there is no need to put alpha into the next function 
+                ! alpha = real(0.0,8)
+                call compute_vector(V,real(0.0,8),vector,PANEL_array,PANELsize)
 
                 ! allocation of solution array's dimensions 
                 allocate(solution(1:PANELsize+1))
@@ -75,17 +78,19 @@ program aeroHS
                 solution = solve_matrix(matrix,vector,PANELsize)
 
                 allocate(Vvec(1:PANELsize))
-                Vvec = compute_vel(solution,PANELsize,PANEL_array,real(1.0,8),alpha)
+                ! alpha = real(0.0,8)
+                Vvec = compute_vel(solution,PANELsize,PANEL_array,V,real(0.0,8))
 
                 allocate(cp_vec(1:PANELsize))
-                cp_vec = compute_cp(Vvec,real(1.0,8),PANELsize)
+                cp_vec = compute_cp(Vvec,V,PANELsize)
 
                 !call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
 
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
-                ! high demandin process 
+                ! high demanding process 
                 ! -- it depends on the dimension of the system and its discrtization
-                call compute_vel_field(PANEL_array,PANELsize,solution,real(1.0,8),alpha)
+                ! alpha = real(0.0,8)
+                call compute_vel_field(PANEL_array,PANELsize,solution,V,real(0.0,8))
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
 
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
@@ -103,7 +108,8 @@ program aeroHS
 
                 ! compute known vector properties from geometry and external flow 
                 allocate(vector(1:PANELsize))
-                call compute_vector(V,alpha,vector,PANEL_array,PANELsize)
+                ! alpha = real(0.0,8)
+                call compute_vector(V,real(0.0,8),vector,PANEL_array,PANELsize)
 
                 ! allocation of solution array's dimensions 
                 allocate(solution(1:PANELsize+1))
@@ -111,7 +117,10 @@ program aeroHS
                 solution = solve_matrix(matrix,vector,PANELsize)
             
                 allocate(Vvec(1:PANELsize))
-                Vvec = compute_vel(solution,PANELsize,PANEL_array,V,alpha)
+                ! because the alpga angle is already expressed in the airfoil geometry
+                !    there is no need to put alpha into the next function 
+                ! alpha = real(0.0,8)
+                Vvec = compute_vel(solution,PANELsize,PANEL_array,V,real(0.0,8))
 
                 allocate(pressure(1:PANELsize))
                 pressure = compute_pressure(P0,V,rho,Vvec,PANELsize)
@@ -137,6 +146,7 @@ program aeroHS
             else if(selection == 3)then
 
                 allocate(cl_alpha(dim,2))
+                ! modify alpha angle = real(0.0,8) because the airfoil geometry inclination
                 call CLalpha(cl_alpha,start_angle,end_angle,dim,matrix,PANEL_array,PANELsize)
 
                 ! dealloctaion process
@@ -163,6 +173,9 @@ program aeroHS
             ! enable difference dimension between airfoils
             ! modify matrix generation
             ! compute moment and lift
+            
+            
+
 
         else if(selection_type == 3)then 
 

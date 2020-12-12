@@ -7,7 +7,7 @@ module airfoilgenerator
 
     contains
 
-    subroutine make_airfoil(PANELsize,MEANLINEarray,PANELarray,airfoil)
+        subroutine make_airfoil(PANELsize,MEANLINEarray,PANELarray,airfoil,alpha)
 
         ! module declaration
         use AIRFOIL_object
@@ -34,7 +34,9 @@ module airfoilgenerator
         integer(kind=4)                                     :: i             ! auxiliary variable
         real(kind=8)                                        :: airfoil_data1 ! easy-access variable -> 1st number of airfoil%data
         real(kind=8)                                        :: airfoil_data2 ! easy-access variable -> 2nd number of arifoil%data
+        real(kind=8),intent(in)                             :: alpha         ! AOA 
         integer(kind=4),intent(out)                         :: PANELsize     ! number of discretization panels
+        real(kind=8),dimension(2)                           :: transl        ! translation vector        
 
         ! this program allows you to create multiple NACA**** profile each run 
 
@@ -139,11 +141,61 @@ module airfoilgenerator
                     end do
                     ! check on leading edge panels
                     call check_LE_panels(PANELarray,dim)
-                    ! compute rotation matrix for each panel
-                    do j=1,2*dim-2
-                        call PANELarray(j)%compute_ROT()
-                    end do 
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL PROPERTIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                     
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL ROTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if(alpha == 0.0)then 
+                        ! compute inverse rotation matrix for each panel
+                        do j=1,2*dim-2
+                            call PANELarray(j)%compute_ROT()
+                        end do 
+                    else  
+                    ! this procedure computes the rotation of the airfoil in space 
+                        ! this procedure rotates the tangent vector of the airfoil
+                        do j=1,2*dim-2                   
+                            call rot(PANELarray(j)%tangent(1),PANELarray(j)%tangent(2),alpha)
+                        end do
+                        ! this procedure rotates the normal vector of the airfoil 
+                        do j=1,2*dim-2                   
+                            call rot(PANELarray(j)%normal(1),PANELarray(j)%normal(2),alpha)
+                        end do
+                        ! this procedure rotates the airfoil points of the airfoil
+                        do j=1,2*dim-2
+                            call rot(PANELarray(j)%coords1(1),PANELarray(j)%coords1(2),alpha)
+                            call rot(PANELarray(j)%coords2(1),PANELarray(j)%coords2(2),alpha)
+                        end do
+                        ! this procedure rotates the airfoil meanline 
+                        do j=1,dim
+                            call rot(MEANLINEarray(j)%coords(1),MEANLINEarray(j)%coords(2),alpha)
+                        end do
+                        ! this procedure computes the variation of the panel angle
+                        ! !!! PAY ATTENTION !!! the angle to vary is in the opposite direction of the convention
+                        ! ---> an angle alpha > 0 will result on the system as the different of such angle
+                        do j=1,2*dim-2
+                            PANELarray(j)%angle = PANELarray(j)%angle - alpha
+                        end do
+                        ! this procedure computes the inverse rotation matrix used in the integral function
+                        do j=1,2*dim-2
+                            call PANELarray(j)%compute_ROT()
+                        end do
+                    end if
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL ROTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL TRANSLATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    ! asking LE position
+                    print*, 'type leading edge position'
+                    read*, transl(1), transl(2)
+                    
+                    ! translation process                        
+                    do j=1,2*dim-2
+                        PANELarray(j)%coords1 = PANELarray(j)%coords1 + transl
+                        PANELarray(j)%coords2 = PANELarray(j)%coords2 + transl
+                    end do
+
+                    do j=1,dim
+                        MEANLINEarray(j)%coords = MEANLINEarray(j)%coords + transl
+                    end do
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL TRANSLATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -178,7 +230,7 @@ module airfoilgenerator
 
     end subroutine make_airfoil
 
-    subroutine ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil)
+    subroutine ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
         use cp 
         use AIRFOIL_object
         use PANEL_object
@@ -194,7 +246,8 @@ module airfoilgenerator
         character(len=30)                                   :: filename
         integer(kind=4)                                     :: selection 
         integer(kind=4)                                     :: x
-
+        real(kind=8),intent(in)                             :: alpha 
+        
         x = 1
 
         do while(x==1)
@@ -211,7 +264,7 @@ module airfoilgenerator
 
                 case(2)
                     ! making new geometry form scratch 
-                    call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil)
+                    call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha)
 
                     x = 0 
 

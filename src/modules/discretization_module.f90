@@ -26,7 +26,7 @@ module discretization_module
 
             angle  = atan2(coordy,coordx)
 
-            angle  = angle - alpha * pi/180
+            angle  = angle - alpha
             radius = abs(sqrt(coordx**2 + coordy**2))
 
             coordx = radius * cos(angle)
