@@ -139,6 +139,10 @@ module airfoilgenerator
                     end do
                     ! check on leading edge panels
                     call check_LE_panels(PANELarray,dim)
+                    ! compute rotation matrix for each panel
+                    do j=1,2*dim-2
+                        call PANELarray(j)%compute_ROT()
+                    end do 
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL PROPERTIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

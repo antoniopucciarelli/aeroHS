@@ -210,6 +210,10 @@ module cp
             ! PANEL INCLINATION reading process
             read(1,'(T28,  F12.8)') PANEL_array(i)%angle   
             
+            ! PANEL ROTATION MATRIX reading process 
+            read(1,'(T28, 4F12.8)') PANEL_array(i)%ROT(1,1), PANEL_array(i)%ROT(2,1), & 
+                                    PANEL_array(i)%ROT(1,2), PANEL_array(i)%ROT(2,2)
+
             ! PANEL POSITION reading process
             read(1, '(T28,    A2)') PANEL_array(i)%POS
 
@@ -263,7 +267,7 @@ module cp
         ! compute panel ith midpoint and declaring N1 and N2 vectors
         N1 = PANEL_jth%coords1
         N2 = PANEL_jth%coords2
-        T = PANEL_ith%midpoint
+        T  = PANEL_ith%midpoint
 
         ! compute panel jth midpoint
         midpoint = PANEL_jth%midpoint
@@ -272,11 +276,12 @@ module cp
         theta = PANEL_jth%get_angle()
 
         ! declaring rotation matrix
-        ROT(1,1) =  cos(theta)
-        ROT(1,2) =  sin(theta)
-        ROT(2,1) = -sin(theta)
-        ROT(2,2) =  cos(theta)
-    
+        !ROT(1,1) =  cos(theta)
+        !ROT(1,2) =  sin(theta)
+        !ROT(2,1) = -sin(theta)
+        !ROT(2,2) =  cos(theta)
+        ROT = PANEL_jth%ROT
+
         ! compute distance vectors between target point and N1, N2
         r1 = T - N1
         r2 = T - N2
@@ -674,5 +679,8 @@ module cp
         call plot_cl(cl_alpha,dim)
 
     end subroutine CLalpha
+        
+    ! TO DO 
+    ! compute velocity in other points in space in order to allow to plot the flow stream
 
 end module cp   

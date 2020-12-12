@@ -8,18 +8,21 @@ module PANEL_object
         ! tangent  = [tangentx, tangenty]   = panel tangent vector coordinates
         ! normal   = [normalx, normaly]     = panel normal vector coordinates
         ! length                            = panel length
+        ! angle                             = panel inclination wrt x-axis
+        ! ROT                               = panel rotation matrix
         ! coords1  = [coodrs1_x, coords1_y] = panel starting point
         ! coords2  = [coodrs2_x, coords2_y] = panel ending point
         !
-        integer(kind=4)           :: id       = 0
-        real(kind=8),dimension(2) :: midpoint = (/0.0, 0.0/) ! [x, y]
-        real(kind=8),dimension(2) :: tangent  = (/0.0, 0.0/) ! [x, y]
-        real(kind=8),dimension(2) :: normal   = (/0.0, 0.0/) ! [x, y]
-        real(kind=8)              :: length   = 0.0
-        real(kind=8),dimension(2) :: coords1  = (/0.0, 0.0/) ! [x, y]
-        real(kind=8),dimension(2) :: coords2  = (/0.0, 0.0/) ! [x, y]
-        real(kind=8)              :: angle    = 0.0          ! rads
-        character(len=2)          :: POS      = 'ND'         ! [UP => upper surface; DW => lower surface; ND => not defined]
+        integer(kind=4)             :: id       = 0
+        real(kind=8),dimension(2)   :: midpoint = (/0.0, 0.0/) ! [x, y]
+        real(kind=8),dimension(2)   :: tangent  = (/0.0, 0.0/) ! [x, y]
+        real(kind=8),dimension(2)   :: normal   = (/0.0, 0.0/) ! [x, y]
+        real(kind=8)                :: length   = 0.0
+        real(kind=8),dimension(2)   :: coords1  = (/0.0, 0.0/) ! [x, y]
+        real(kind=8),dimension(2)   :: coords2  = (/0.0, 0.0/) ! [x, y]
+        real(kind=8)                :: angle    = 0.0          ! rads
+        real(kind=8),dimension(2,2) :: ROT       
+        character(len=2)            :: POS      = 'ND'         ! [UP => upper surface; DW => lower surface; ND => not defined]
 
         contains
 
@@ -35,6 +38,7 @@ module PANEL_object
         procedure, pass(this) :: get_coords1
         procedure, pass(this) :: get_coords2
         procedure, pass(this) :: get_angle
+        procedure, pass(this) :: get_rot_matrix
         procedure, pass(this) :: get_position
         !!!!!!!!!!!!!!! GET FUNCTION - PASS PROCEDURE !!!!!!!!!!!!!!!    
         procedure, pass(this) :: set_coords
@@ -44,6 +48,7 @@ module PANEL_object
         procedure, pass(this) :: SCALINGfunc
         procedure, pass(this) :: compute_length
         procedure, pass(this) :: compute_tangent_and_normal
+        procedure, pass(this) :: compute_ROT 
         procedure, pass(this) :: compute_transl
         procedure, pass(this) :: compute_midpoint
         procedure, pass(this) :: saving
@@ -110,16 +115,16 @@ module PANEL_object
     
         function get_coords1(this)
             implicit none
-            real(kind=8),dimension(2) :: get_coords1
-            class(panel), intent(in) :: this
+            real(kind=8), dimension(2) :: get_coords1
+            class(panel), intent(in)   :: this
         
             get_coords1 = this%coords1
         end function get_coords1
     
         function get_coords2(this)
             implicit none
-            real(kind=8),dimension(2) :: get_coords2
-            class(panel), intent(in) :: this
+            real(kind=8), dimension(2) :: get_coords2
+            class(panel), intent(in)   :: this
         
             get_coords2 = this%coords2
         end function get_coords2
@@ -129,6 +134,17 @@ module PANEL_object
             class(panel), intent(in) :: this
             get_angle = this%angle
         end function get_angle
+        
+        function get_rot_matrix(this)            
+            implicit none 
+            class(panel), intent(in)     :: this
+            real(kind=8), dimension(4) :: get_rot_matrix
+
+            get_rot_matrix(1) = this%ROT(1,1)
+            get_rot_matrix(2) = this%ROT(2,1)
+            get_rot_matrix(3) = this%ROT(1,2)
+            get_rot_matrix(4) = this%ROT(2,2)
+        end function get_rot_matrix
 
         character(len=2) function get_position(this)
             implicit none
@@ -243,6 +259,8 @@ module PANEL_object
         real(kind=8)                :: cross_value
         real(kind=8),dimension(2)   :: temp
         character(len=2)            :: flag           
+        
+        ! substuite the process with the get_angle function
 
         ! starting point coords
         coordx1 = this%coords1(1)
@@ -267,7 +285,7 @@ module PANEL_object
             
             if (flag == 'UP') then
                 if (this%normal(2) < 0) then
-                    this%normal  = - this%normal
+                    this%normal = - this%normal
                 end if
             
                 cross_value = cross(this%tangent,this%normal)
@@ -284,7 +302,7 @@ module PANEL_object
                 cross_value = cross(this%tangent,this%normal)
                 
                 if (cross_value > 0) then 
-                    this%tangent = - this%tangent
+                    !this%tangent = - this%tangent
                 end if
 
             end if
@@ -293,7 +311,27 @@ module PANEL_object
         end if
 
     end subroutine compute_tangent_and_normal
+    
+    subroutine compute_ROT(this)
+        implicit none
 
+        class(panel),intent(inout) :: this
+        real(kind=8)               :: theta
+            
+        theta = this%get_angle()
+
+        this%ROT(1,1) =  cos(theta)
+        this%ROT(2,1) =  sin(theta)
+        this%ROT(1,2) = -sin(theta)
+        this%ROT(2,2) =  cos(theta)
+        
+        ! matrix description
+        !
+        ! [ cos(theta), -sin(theta) ]
+        ! [ sin(theta),  cos(theta) ]
+        !
+    end subroutine compute_ROT
+        
     subroutine compute_midpoint(this,flag)
         use FOUL
         implicit none
@@ -346,6 +384,7 @@ module PANEL_object
         write(writing_file,'(A27, 2F12.8)') '    tangent vector [x,y] : ', this%get_tangentx(), this%get_tangenty()
         write(writing_file,'(A27, 2F12.8)') '    normal vector  [x,y] : ', this%get_normalx(), this%get_normaly()
         write(writing_file,'(A27,  F12.8)') '    angle          [rad] : ', this%get_angle()
+        write(writing_file,'(A27, 4F12.8)') '    rotation matrix      : ', this%get_rot_matrix()
         write(writing_file,'(A27,     A2)') '    position             : ', this%get_position()
         write(writing_file,*) new_line('A')   
 
