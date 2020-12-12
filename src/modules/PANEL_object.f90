@@ -313,6 +313,8 @@ module PANEL_object
     end subroutine compute_tangent_and_normal
     
     subroutine compute_ROT(this)
+    ! this suborutine computes the inverse matrix rotation for the panel 
+    ! -- the aim is to use it to avoid recursive calculation of sin() and cos() functions in the matrix generation
         implicit none
 
         class(panel),intent(inout) :: this
@@ -321,14 +323,14 @@ module PANEL_object
         theta = this%get_angle()
 
         this%ROT(1,1) =  cos(theta)
-        this%ROT(2,1) =  sin(theta)
-        this%ROT(1,2) = -sin(theta)
+        this%ROT(1,2) =  sin(theta)
+        this%ROT(2,1) = -sin(theta)
         this%ROT(2,2) =  cos(theta)
         
-        ! matrix description
+        ! INVERSE MATRIX description
         !
-        ! [ cos(theta), -sin(theta) ]
-        ! [ sin(theta),  cos(theta) ]
+        ! [   cos(theta), sin(theta) ]
+        ! [ - sin(theta), cos(theta) ]
         !
     end subroutine compute_ROT
         

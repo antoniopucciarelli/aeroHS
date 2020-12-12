@@ -80,10 +80,17 @@ program aeroHS
                 allocate(cp_vec(1:PANELsize))
                 cp_vec = compute_cp(Vvec,real(1.0,8),PANELsize)
 
-                call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
+                !call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
+
+                !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
+                ! high demandin process 
+                ! -- it depends on the dimension of the system and its discrtization
+                call compute_vel_field(PANEL_array,PANELsize,solution,real(1.0,8),alpha)
+                !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
 
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
                 call plot_cp(cp_vec,PANEL_array,PANELsize)
+                call plot_vel_field()
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
 
                 ! deallocation process

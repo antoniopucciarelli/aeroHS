@@ -21,9 +21,9 @@ module cp
 
         do while(x==1)
             print*, 'to compute Cp       vs X --> type(1)'
-            print*, 'to compute pressure vs X'
-            print*, '           velocity vs X'
-            print*, '           Cp       vs X --> type(2)'
+            print*, 'to compute pressure vs X --' 
+            print*, '           velocity vs X --> type(2)'
+            print*, '           Cp       vs X --'
             print*, 'to compute Cl       vs X --> type(3)'
             read*, selection
 
@@ -275,11 +275,7 @@ module cp
         ! compute panel inclination angle
         theta = PANEL_jth%get_angle()
 
-        ! declaring rotation matrix
-        !ROT(1,1) =  cos(theta)
-        !ROT(1,2) =  sin(theta)
-        !ROT(2,1) = -sin(theta)
-        !ROT(2,2) =  cos(theta)
+        ! declaring rotation matrix --> have a look at compute_ROT in PANEL_object.f90
         ROT = PANEL_jth%ROT
 
         ! compute distance vectors between target point and N1, N2
@@ -336,13 +332,6 @@ module cp
         tangent = PANEL_jth%tangent
         normal  = PANEL_jth%normal
 
-        ! check on jth PANEL tangent direction 
-        ! -- the direction is opposite with the respect to the induction convenction 
-        ! -- of panel jth on panel ith 
-        if(PANEL_jth%get_position() == 'DW')then
-            tangent = - tangent
-        end if 
-
         if(input_type == 'source')then
             integral = - 1/(2*pi)*log(r2mod/r1mod)*tangent + 1/(2*pi)*beta*normal
         else if(input_type == 'vortex')then
@@ -387,12 +376,12 @@ module cp
         end do 
         
         ! declaring tangent and normal vectors
-        normal_first  =   PANEL_array(1)%normal
-        tangent_first =   PANEL_array(1)%tangent
-        normal_last   =   PANEL_array(PANELsize)%normal
-        tangent_last  = - PANEL_array(PANELsize)%tangent 
-        ! tangent_last --> it has (-) sign because it is opposite to the convection 
-        !                  used in the study of the induction of panel jth on panel ith
+        ! first panel -- AIRFOIL UPPER PART 
+        normal_first  = PANEL_array(1)%normal
+        tangent_first = PANEL_array(1)%tangent
+        ! last panel  -- AIRFOIL LOWER PART 
+        normal_last   = PANEL_array(PANELsize)%normal
+        tangent_last  = PANEL_array(PANELsize)%tangent 
         
         do j=1,PANELsize
 
@@ -436,17 +425,15 @@ module cp
         do i=1,PANELsize
 
             ! declaring normal vector
-            normal_ith  = PANEL_array(i)%normal
+            normal_ith =   PANEL_array(i)%normal
 
-            vector(i) = - dot_product(V_vec,normal_ith)
+            vector(i)  = - dot_product(V_vec,normal_ith)
         
         end do
 
         ! declaring tangent vectors
-        tangent_first =   PANEL_array(1)%tangent
-        tangent_last  = - PANEL_array(PANELsize)%tangent
-        ! tangent_last --> it has (-) sign because it is opposite to the convection 
-        !                  used in the study of the induction of panel jth on panel ith
+        tangent_first = PANEL_array(1)%tangent
+        tangent_last  = PANEL_array(PANELsize)%tangent
        
         vector(PANELsize+1) = - (dot_product(V_vec,tangent_first) + &
                                  dot_product(V_vec,tangent_last))
@@ -551,7 +538,7 @@ module cp
             ! declaring tangent vector for the panel ith
             tangent_ith = PANEL_array(i)%tangent
 
-            vector(i) = dot_product(V_vec,tangent_ith)
+            vector(i)   = dot_product(V_vec,tangent_ith)
         
         end do
 
@@ -680,7 +667,108 @@ module cp
 
     end subroutine CLalpha
         
-    ! TO DO 
-    ! compute velocity in other points in space in order to allow to plot the flow stream
+    subroutine compute_vel_field(PANEL_array,PANELsize,solution,V,alpha)
+    ! this subroutine computes the velocity field of the system after have computed the values of every singularity [gamma; sigma(i)]     
+        use PANEL_object
+        use math_module
+        implicit none 
+        
+        ! generating a grid of measure points 
+        !   length = -0.5 : +1.5
+        !   height = -0.5 : +0.5
+        !   # of measure points = 5e+2 points each direction
+        ! this grid can be expressed in a monodimensional array that contains 2 dimensional vectors 
+        !   the procedure can be possible if it's used a type variable that describes a vector
+        type :: array_type  
+            real(kind=8),pointer :: coords(:)
+        end type array_type 
+        
+        integer(kind=4),intent(in)                     :: PANELsize
+        integer(kind=4)                                :: ncols = 5e+2
+        integer(kind=4)                                :: nrows = 2e+2
+        integer(kind=4)                                :: i, j, k
+        real(kind=8)                                   :: deltax, deltay
+        real(kind=8)                                   :: x_start, x_end
+        real(kind=8)                                   :: y_start, y_end
+        real(kind=8),dimension(2)                      :: velocity
+        real(kind=8),intent(in)                        :: V
+        real(kind=8),intent(in)                        :: alpha
+        real(kind=8),dimension(PANELsize+1),intent(in) :: solution
+        type(panel)                                    :: dummy_panel
+        type(panel),dimension(PANELsize),intent(in)    :: PANEL_array
+        type(array_type),dimension(:,:),allocatable    :: grid
+
+        ! grid allocation process in memory
+        allocate(grid(nrows,ncols))
+        do i=1,nrows
+            do j=1,ncols
+                allocate(grid(i,j)%coords(2))
+            end do
+        end do
+            
+        ! allocating grid dimensions
+        x_start = -0.2
+        x_end   =  1.5
+        y_start = -0.2 
+        y_end   =  0.2
+
+        ! grid dimension allocation process
+        deltax = (x_end - x_start)/ncols
+        deltay = (y_end - y_start)/nrows        
+        ! grid data allocation process
+        do i=1,nrows 
+            do j=1,ncols
+                grid(i,j)%coords(1) = x_start + (j-1)*deltax
+                grid(i,j)%coords(2) = y_start + (i-1)*deltay
+            end do
+        end do
+
+        ! computing velocity 
+        ! -- saving results in VELfield.dat
+        ! -- using integral, computeCOEFF to compute velocity
+        
+        ! open file to save dat
+        open(unit=1, file='VELfield.dat', status='replace')
+        write(1,*) 'x_coord, y_coords, x_vel, y_vel, velocity_norm'    
+        
+        ! compute velocity process
+        do i=1,nrows
+            do j=1,ncols
+                ! allocating midpoint in dummy_panel
+                ! it's the only point necessary to compute the velocity
+                dummy_panel%midpoint(1) = grid(i,j)%coords(1)
+                dummy_panel%midpoint(2) = grid(i,j)%coords(2)
+                
+                ! initializing velocity
+                velocity(1) = 0.0
+                velocity(2) = 0.0
+                
+                ! computing velocity through integral funcition
+                do k=1,PANELsize
+                    velocity = velocity + integral(dummy_panel,PANEL_array(k),'source') * solution(k)                    
+                    velocity = velocity + integral(dummy_panel,PANEL_array(k),'vortex') * solution(PANELsize+1)
+                end do
+
+                ! imposing external velocity
+                velocity(1) = velocity(1) + V*cos(alpha)
+                velocity(2) = velocity(2) + V*sin(alpha)
+                
+                ! writing data in VELfield.dat
+                
+                write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
+                           velocity(1)            , velocity(2), norm(velocity)
+
+            end do
+        end do
+            
+        print*, alpha
+        print*, V
+
+        close(1)
+   
+        deallocate(grid)
+    end subroutine compute_vel_field
+
+        
 
 end module cp   

@@ -198,8 +198,8 @@ module airfoilgenerator
         x = 1
 
         do while(x==1)
-            print*, 'load data from an existing .dat file created by airfoilgenerator.f90 --> type(1)'
-            print*, 'create a new airfoil from scratch                                    --> type(2)'
+            print*, 'load data from an existing .dat file created by previous runs --> type(1)'
+            print*, 'create a new airfoil from scratch                             --> type(2)'
             read*, selection
 
             select case(selection)

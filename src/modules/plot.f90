@@ -107,5 +107,13 @@ module plot
         call write_formatted('[','normal','OK','green','] -- Cl plotted ','normal')
 
     end subroutine plot_cl
+    
+    subroutine plot_vel_field()
+        use FOUL
+        implicit none 
+ 
+        call system('gnuplot -p VELfield.plt')
 
+        call write_formatted('[','normal','OK','green','] -- velocity field plotted ','normal')
+    end subroutine plot_vel_field 
 end module plot 
