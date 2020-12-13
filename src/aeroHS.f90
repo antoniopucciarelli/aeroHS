@@ -1,7 +1,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! author           : antonio pucciarelli                                  !
 ! date of creation : 11/20/2020 24:04                                     !
-! email            : antonio.pucc@gmail.com                               !
 ! written with     : vim                                                  ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program aeroHS
@@ -12,6 +11,7 @@ program aeroHS
     use PANEL_object
     use print_save
     use plot
+    use ground_cp
     use cp
 
     implicit none
@@ -19,6 +19,7 @@ program aeroHS
     type(NACA_airfoil)                      :: airfoil
     type(MEANline),dimension(:),allocatable :: MEAN_array    
     type(panel),dimension(:),allocatable    :: PANEL_array
+    type(panel),dimension(:),allocatable    :: GROUNDpanel
     integer(kind=4)                         :: MEANsize
     real(kind=8),dimension(:,:),allocatable :: matrix
     real(kind=8),dimension(:),allocatable   :: vector     
@@ -39,6 +40,7 @@ program aeroHS
     integer(kind=4)                         :: selection      = 0
     integer(kind=4)                         :: selection_type = 0
     integer(kind=4)                         :: i              = 1
+    integer(kind=4)                         :: GROUNDsize
     character(len=30)                       :: filename
     
     do while(i==1)
@@ -58,13 +60,13 @@ program aeroHS
             
             call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection)
 
-            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
-
-            ! computing matrix process
-            call compute_matrix(matrix,PANEL_array,PANELsize)
-
             if(selection == 1)then
             
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
+
+                ! computing matrix process
+                call compute_matrix(matrix,PANEL_array,PANELsize)
+                
                 ! compute known vector properties from geometry and external flow 
                 allocate(vector(1:PANELsize))
                 ! because the alpha angle is already expressed in the airfoil geometry
@@ -90,7 +92,7 @@ program aeroHS
                 ! high demanding process 
                 ! -- it depends on the dimension of the system and its discrtization
                 ! alpha = real(0.0,8)
-                call compute_vel_field(PANEL_array,PANELsize,solution,V,real(0.0,8))
+                call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8))
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
 
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
@@ -106,6 +108,11 @@ program aeroHS
 
             else if(selection == 2)then
 
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
+
+                ! computing matrix process
+                call compute_matrix(matrix,PANEL_array,PANELsize)
+            
                 ! compute known vector properties from geometry and external flow 
                 allocate(vector(1:PANELsize))
                 ! alpha = real(0.0,8)
@@ -130,6 +137,10 @@ program aeroHS
 
                 call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
 
+                !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
+                call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8))
+                !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
+
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
                 call plot_cp(cp_vec,PANEL_array,PANELsize)
                 call plot_pressure(pressure,PANEL_array,PANELsize)
@@ -145,11 +156,16 @@ program aeroHS
 
             else if(selection == 3)then
 
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,real(0.0,8))
+
+                ! computing matrix process
+                call compute_matrix(matrix,PANEL_array,PANELsize)
+            
                 allocate(cl_alpha(dim,2))
                 ! modify alpha angle = real(0.0,8) because the airfoil geometry inclination
                 call CLalpha(cl_alpha,start_angle,end_angle,dim,matrix,PANEL_array,PANELsize)
 
-                ! dealloctaion process
+                ! deallocation process
                 deallocate(cl_alpha)
             
             end if
@@ -161,10 +177,6 @@ program aeroHS
             deallocate(MEAN_array)
             deallocate(matrix)
             
-            ! create a function that computes the velocity in other points in space in order to see the actual flow around the airfoil
-            
-            ! create a grid and then compute velocity on points --> use then python to plot the contour 
-
         else if(selection_type == 2)then 
                     
             ! call 2 times airfoil generator
@@ -174,14 +186,28 @@ program aeroHS
             ! modify matrix generation
             ! compute moment and lift
             
-            
-
-
         else if(selection_type == 3)then 
+            
+            ! generate flow properties
+            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection)
+            
+            ! generate airfoil geometry 
+            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
 
-            ! generate soil
-            ! modify extension at every subroutine and function regarding # of panels
-            ! compute moment and lift 
+            ! ground panels generation             
+            call generate_ground(GROUNDpanel,GROUNDsize)
+                 
+            ! compute system matrix 
+            call computeGROUNDmatrix(matrix,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize)
+
+            ! compute known vector 
+            call computeGROUNDvector(vector,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,alpha,V)
+
+            ! computing solution
+            call solveGROUND(solution,matrix,vector,PANELsize,GROUNDsize)
+
+            ! computing velocity and pressure field 
+            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho)
 
         end if 
     end do 

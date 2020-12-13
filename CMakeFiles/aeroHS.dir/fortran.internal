@@ -8,6 +8,7 @@ provides
  foul_helpers.mod
  foul_iif.mod
  foul_timing.mod
+ ground_cp.mod
  math_module.mod
  meanline_object.mod
  panel_object.mod

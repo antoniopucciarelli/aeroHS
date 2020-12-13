@@ -366,6 +366,33 @@ src/modules/math_module.f90.s:
 	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/math_module.f90.s
 .PHONY : src/modules/math_module.f90.s
 
+src/modules/multi_cp.o: src/modules/multi_cp.f90.o
+
+.PHONY : src/modules/multi_cp.o
+
+# target to build an object file
+src/modules/multi_cp.f90.o:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o
+.PHONY : src/modules/multi_cp.f90.o
+
+src/modules/multi_cp.i: src/modules/multi_cp.f90.i
+
+.PHONY : src/modules/multi_cp.i
+
+# target to preprocess a source file
+src/modules/multi_cp.f90.i:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.i
+.PHONY : src/modules/multi_cp.f90.i
+
+src/modules/multi_cp.s: src/modules/multi_cp.f90.s
+
+.PHONY : src/modules/multi_cp.s
+
+# target to generate assembly for a file
+src/modules/multi_cp.f90.s:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.s
+.PHONY : src/modules/multi_cp.f90.s
+
 src/modules/plot.o: src/modules/plot.f90.o
 
 .PHONY : src/modules/plot.o
@@ -456,6 +483,9 @@ help:
 	@echo "... src/modules/math_module.o"
 	@echo "... src/modules/math_module.i"
 	@echo "... src/modules/math_module.s"
+	@echo "... src/modules/multi_cp.o"
+	@echo "... src/modules/multi_cp.i"
+	@echo "... src/modules/multi_cp.s"
 	@echo "... src/modules/plot.o"
 	@echo "... src/modules/plot.i"
 	@echo "... src/modules/plot.s"

@@ -8,6 +8,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o"
   "CMakeFiles/aeroHS.dir/src/modules/foul.f90.o"
   "CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o"
+  "CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o"
   "CMakeFiles/aeroHS.dir/src/modules/plot.f90.o"
   "CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o"
   "bin/aeroHS"

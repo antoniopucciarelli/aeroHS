@@ -31,8 +31,10 @@ module cp
                 case(1)
                     print*, 'type airfoil angle of attack -- AOA [deg]'
                     read*, alpha
-                    V = 1
-                    x = 0
+                    V   = 1
+                    rho = 1 
+                    P0  = 1
+                    x   = 0
 
                 case(2)
                     print*, 'type ambient pressure P0 [Pa] '
@@ -477,7 +479,7 @@ module cp
         real(kind=8)                                    :: maxerr
         character(len=30)                               :: char_error
 
-        test = matmul(matrix,solution) - vector
+        test   = matmul(matrix,solution) - vector
 
         maxerr = maxval(abs(test), PANELsize)
 
@@ -614,7 +616,7 @@ module cp
     end function compute_cl
 
     subroutine CLalpha(cl_alpha,start_angle,end_angle,dim,matrix,PANEL_array,PANELsize)
-    ! this suborutine computes the cl alpha diagram for the airfoil 
+    ! this subroutine computes the cl alpha diagram for the airfoil 
         use FOUL 
         use PANEL_object
         use plot
@@ -667,7 +669,7 @@ module cp
 
     end subroutine CLalpha
         
-    subroutine compute_vel_field(PANEL_array,PANELsize,solution,V,alpha)
+    subroutine compute_field(PANEL_array,PANELsize,solution,V,P0,rho,alpha)
     ! this subroutine computes the velocity field of the system after have computed the values of every singularity [gamma; sigma(i)]     
         use PANEL_object
         use math_module
@@ -681,8 +683,8 @@ module cp
         end type array_type 
         
         integer(kind=4),intent(in)                     :: PANELsize
-        integer(kind=4)                                :: ncols = 5e+2
-        integer(kind=4)                                :: nrows = 2e+2
+        integer(kind=4)                                :: ncols = 2e+2
+        integer(kind=4)                                :: nrows = 1e+2
         integer(kind=4)                                :: i, j, k
         real(kind=8)                                   :: deltax, deltay
         real(kind=8)                                   :: x_start, x_end
@@ -691,6 +693,10 @@ module cp
         real(kind=8),intent(in)                        :: V
         real(kind=8),intent(in)                        :: alpha
         real(kind=8),dimension(PANELsize+1),intent(in) :: solution
+        real(kind=8)                                   :: pressure
+        real(kind=8)                                   :: norm_vel
+        real(kind=8),intent(in)                        :: P0
+        real(kind=8),intent(in)                        :: rho
         type(panel)                                    :: dummy_panel
         type(panel),dimension(PANELsize),intent(in)    :: PANEL_array
         type(array_type),dimension(:,:),allocatable    :: grid
@@ -721,12 +727,11 @@ module cp
         end do
 
         ! computing velocity 
-        ! -- saving results in VELfield.dat
+        ! -- saving results in FLOWfield.dat
         ! -- using integral, computeCOEFF to compute velocity
         
         ! open file to save dat
-        open(unit=1, file='VELfield.dat', status='replace')
-        write(1,*) 'x_coord, y_coords, x_vel, y_vel, velocity_norm'    
+        open(unit=1, file='FLOWfield.dat', status='replace')
         
         ! compute velocity process
         do i=1,nrows
@@ -749,10 +754,18 @@ module cp
                 ! imposing external velocity
                 velocity(1) = velocity(1) + V*cos(alpha)
                 velocity(2) = velocity(2) + V*sin(alpha)
+                    
+                ! computing norm of velocity
+                norm_vel = norm(velocity)
+
+                ! computing pressure
+                pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
                 
-                ! writing data in VELfield.dat
+                ! writing data in FLOWfield.dat
+                ! x_coord, y_coords, x_vel, y_vel, velocity_norm, pressure    
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
-                           velocity(1)            , velocity(2), norm(velocity)
+                           velocity(1)            , velocity(2),             & 
+                           norm_vel               , pressure
 
             end do
         end do
@@ -760,6 +773,6 @@ module cp
         close(1)
    
         deallocate(grid)
-    end subroutine compute_vel_field
+    end subroutine compute_field
 
 end module cp   

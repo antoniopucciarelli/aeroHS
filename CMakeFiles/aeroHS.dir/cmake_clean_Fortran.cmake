@@ -32,6 +32,10 @@ FILE(REMOVE
   "include/FOUL_TIMING.mod"
   "CMakeFiles/aeroHS.dir/foul_timing.mod.stamp"
 
+  "include/ground_cp.mod"
+  "include/GROUND_CP.mod"
+  "CMakeFiles/aeroHS.dir/ground_cp.mod.stamp"
+
   "include/math_module.mod"
   "include/MATH_MODULE.mod"
   "CMakeFiles/aeroHS.dir/math_module.mod.stamp"

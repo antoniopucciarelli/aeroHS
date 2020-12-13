@@ -21,6 +21,7 @@ target_link_libraries(aeroHS ${linkedlibs})
 # coping .plt files
 file(COPY ${PROJECT_SOURCE_DIR}/src/plt/CP_plot.plt             DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
 file(COPY ${PROJECT_SOURCE_DIR}/src/plt/VELfield.plt            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
+file(COPY ${PROJECT_SOURCE_DIR}/src/plt/velPLOT.py             DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
 file(COPY ${PROJECT_SOURCE_DIR}/src/plt/CL_plot.plt             DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
 file(COPY ${PROJECT_SOURCE_DIR}/src/plt/vel_plot.plt            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
 file(COPY ${PROJECT_SOURCE_DIR}/src/plt/pressure_plot.plt       DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
