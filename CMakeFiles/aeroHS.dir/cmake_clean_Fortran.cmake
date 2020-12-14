@@ -8,6 +8,10 @@ FILE(REMOVE
   "include/AIRFOILGENERATOR.mod"
   "CMakeFiles/aeroHS.dir/airfoilgenerator.mod.stamp"
 
+  "include/ask_module.mod"
+  "include/ASK_MODULE.mod"
+  "CMakeFiles/aeroHS.dir/ask_module.mod.stamp"
+
   "include/cp.mod"
   "include/CP.mod"
   "CMakeFiles/aeroHS.dir/cp.mod.stamp"

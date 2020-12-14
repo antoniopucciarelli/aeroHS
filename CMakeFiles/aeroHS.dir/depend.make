@@ -5,6 +5,7 @@
 
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/airfoil_object.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/airfoilgenerator.mod.stamp
+CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/ask_module.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/cp.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/ground_cp.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/meanline_object.mod.stamp
@@ -42,6 +43,7 @@ CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/cp.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/discretization_module.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/foul.mod.stamp
+CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/math_module.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/meanline_object.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o: CMakeFiles/aeroHS.dir/panel_object.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build: CMakeFiles/aeroHS.dir/airfoilgenerator.mod.stamp
@@ -50,6 +52,14 @@ CMakeFiles/aeroHS.dir/airfoilgenerator.mod.stamp: CMakeFiles/aeroHS.dir/src/modu
 CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build
 CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build
+
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o: CMakeFiles/aeroHS.dir/math_module.mod.stamp
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o.provides.build: CMakeFiles/aeroHS.dir/ask_module.mod.stamp
+CMakeFiles/aeroHS.dir/ask_module.mod.stamp: CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o
+	$(CMAKE_COMMAND) -E cmake_copy_f90_mod include/ask_module.mod CMakeFiles/aeroHS.dir/ask_module.mod.stamp GNU
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o.provides.build:
+	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o.provides.build
+CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o.provides.build
 
 CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o: CMakeFiles/aeroHS.dir/airfoil_object.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o: CMakeFiles/aeroHS.dir/discretization_module.mod.stamp
@@ -92,23 +102,23 @@ CMakeFiles/aeroHS.dir/src/modules/foul.f90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/foul.f90.o.provides.build
 CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/foul.f90.o.provides.build
 
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o: CMakeFiles/aeroHS.dir/cp.mod.stamp
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o: CMakeFiles/aeroHS.dir/foul.mod.stamp
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o: CMakeFiles/aeroHS.dir/math_module.mod.stamp
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o: CMakeFiles/aeroHS.dir/panel_object.mod.stamp
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o.provides.build: CMakeFiles/aeroHS.dir/ground_cp.mod.stamp
+CMakeFiles/aeroHS.dir/ground_cp.mod.stamp: CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o
+	$(CMAKE_COMMAND) -E cmake_copy_f90_mod include/ground_cp.mod CMakeFiles/aeroHS.dir/ground_cp.mod.stamp GNU
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o.provides.build:
+	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o.provides.build
+CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o.provides.build
+
 CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o.provides.build: CMakeFiles/aeroHS.dir/math_module.mod.stamp
 CMakeFiles/aeroHS.dir/math_module.mod.stamp: CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o
 	$(CMAKE_COMMAND) -E cmake_copy_f90_mod include/math_module.mod CMakeFiles/aeroHS.dir/math_module.mod.stamp GNU
 CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o.provides.build
 CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o.provides.build
-
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o: CMakeFiles/aeroHS.dir/cp.mod.stamp
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o: CMakeFiles/aeroHS.dir/foul.mod.stamp
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o: CMakeFiles/aeroHS.dir/math_module.mod.stamp
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o: CMakeFiles/aeroHS.dir/panel_object.mod.stamp
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o.provides.build: CMakeFiles/aeroHS.dir/ground_cp.mod.stamp
-CMakeFiles/aeroHS.dir/ground_cp.mod.stamp: CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o
-	$(CMAKE_COMMAND) -E cmake_copy_f90_mod include/ground_cp.mod CMakeFiles/aeroHS.dir/ground_cp.mod.stamp GNU
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o.provides.build:
-	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o.provides.build
-CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o.provides.build
 
 CMakeFiles/aeroHS.dir/src/modules/plot.f90.o: CMakeFiles/aeroHS.dir/foul.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/plot.f90.o: CMakeFiles/aeroHS.dir/panel_object.mod.stamp

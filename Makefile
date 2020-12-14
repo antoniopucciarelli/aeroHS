@@ -258,6 +258,33 @@ src/modules/airfoilgenerator.f90.s:
 	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.s
 .PHONY : src/modules/airfoilgenerator.f90.s
 
+src/modules/ask_module.o: src/modules/ask_module.f90.o
+
+.PHONY : src/modules/ask_module.o
+
+# target to build an object file
+src/modules/ask_module.f90.o:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o
+.PHONY : src/modules/ask_module.f90.o
+
+src/modules/ask_module.i: src/modules/ask_module.f90.i
+
+.PHONY : src/modules/ask_module.i
+
+# target to preprocess a source file
+src/modules/ask_module.f90.i:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.i
+.PHONY : src/modules/ask_module.f90.i
+
+src/modules/ask_module.s: src/modules/ask_module.f90.s
+
+.PHONY : src/modules/ask_module.s
+
+# target to generate assembly for a file
+src/modules/ask_module.f90.s:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.s
+.PHONY : src/modules/ask_module.f90.s
+
 src/modules/cp_module.o: src/modules/cp_module.f90.o
 
 .PHONY : src/modules/cp_module.o
@@ -339,6 +366,33 @@ src/modules/foul.f90.s:
 	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/foul.f90.s
 .PHONY : src/modules/foul.f90.s
 
+src/modules/ground_cp.o: src/modules/ground_cp.f90.o
+
+.PHONY : src/modules/ground_cp.o
+
+# target to build an object file
+src/modules/ground_cp.f90.o:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o
+.PHONY : src/modules/ground_cp.f90.o
+
+src/modules/ground_cp.i: src/modules/ground_cp.f90.i
+
+.PHONY : src/modules/ground_cp.i
+
+# target to preprocess a source file
+src/modules/ground_cp.f90.i:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.i
+.PHONY : src/modules/ground_cp.f90.i
+
+src/modules/ground_cp.s: src/modules/ground_cp.f90.s
+
+.PHONY : src/modules/ground_cp.s
+
+# target to generate assembly for a file
+src/modules/ground_cp.f90.s:
+	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.s
+.PHONY : src/modules/ground_cp.f90.s
+
 src/modules/math_module.o: src/modules/math_module.f90.o
 
 .PHONY : src/modules/math_module.o
@@ -365,33 +419,6 @@ src/modules/math_module.s: src/modules/math_module.f90.s
 src/modules/math_module.f90.s:
 	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/math_module.f90.s
 .PHONY : src/modules/math_module.f90.s
-
-src/modules/multi_cp.o: src/modules/multi_cp.f90.o
-
-.PHONY : src/modules/multi_cp.o
-
-# target to build an object file
-src/modules/multi_cp.f90.o:
-	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o
-.PHONY : src/modules/multi_cp.f90.o
-
-src/modules/multi_cp.i: src/modules/multi_cp.f90.i
-
-.PHONY : src/modules/multi_cp.i
-
-# target to preprocess a source file
-src/modules/multi_cp.f90.i:
-	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.i
-.PHONY : src/modules/multi_cp.f90.i
-
-src/modules/multi_cp.s: src/modules/multi_cp.f90.s
-
-.PHONY : src/modules/multi_cp.s
-
-# target to generate assembly for a file
-src/modules/multi_cp.f90.s:
-	$(MAKE) -f CMakeFiles/aeroHS.dir/build.make CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.s
-.PHONY : src/modules/multi_cp.f90.s
 
 src/modules/plot.o: src/modules/plot.f90.o
 
@@ -471,6 +498,9 @@ help:
 	@echo "... src/modules/airfoilgenerator.o"
 	@echo "... src/modules/airfoilgenerator.i"
 	@echo "... src/modules/airfoilgenerator.s"
+	@echo "... src/modules/ask_module.o"
+	@echo "... src/modules/ask_module.i"
+	@echo "... src/modules/ask_module.s"
 	@echo "... src/modules/cp_module.o"
 	@echo "... src/modules/cp_module.i"
 	@echo "... src/modules/cp_module.s"
@@ -480,12 +510,12 @@ help:
 	@echo "... src/modules/foul.o"
 	@echo "... src/modules/foul.i"
 	@echo "... src/modules/foul.s"
+	@echo "... src/modules/ground_cp.o"
+	@echo "... src/modules/ground_cp.i"
+	@echo "... src/modules/ground_cp.s"
 	@echo "... src/modules/math_module.o"
 	@echo "... src/modules/math_module.i"
 	@echo "... src/modules/math_module.s"
-	@echo "... src/modules/multi_cp.o"
-	@echo "... src/modules/multi_cp.i"
-	@echo "... src/modules/multi_cp.s"
 	@echo "... src/modules/plot.o"
 	@echo "... src/modules/plot.i"
 	@echo "... src/modules/plot.s"

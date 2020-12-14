@@ -2,6 +2,7 @@
 provides
  airfoil_object.mod
  airfoilgenerator.mod
+ ask_module.mod
  cp.mod
  discretization_module.mod
  foul.mod

@@ -168,6 +168,7 @@ module print_save
         real(kind=8),dimension(PANELsize+1,PANELsize+1),intent(in) :: matrix 
         real(kind=8),dimension(PANELsize+1),intent(in)             :: vector 
         real(kind=8),dimension(PANELsize+1),intent(in)             :: solution
+        real(kind=8),dimension(PANELsize+1)                        :: error 
 
         print*, 'do you want to save [matrix, known_vector, solution_vector]? [Y\n]'
         read*, resp
@@ -179,7 +180,10 @@ module print_save
             filename = 'vector.dat'
             call save_vector(vector,PANELsize+1,filename)
             filename = 'solution.dat'
-            call save_vector(solution,PANELsize+1,filename)    
+            call save_vector(solution,PANELsize+1,filename)
+            filename = 'error.dat'
+            error = matmul(matrix,solution) - vector 
+            call save_vector(error,PANELsize+1,filename)    
             !!!!!!!!!!!!!!!!!!!!!!! SAVING VECTORS & MATRIX !!!!!!!!!!!!!!!!!!!!!!!!!
         end if
 

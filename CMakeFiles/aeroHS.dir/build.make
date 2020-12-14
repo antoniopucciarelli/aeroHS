@@ -122,9 +122,22 @@ CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling Fortran source to assembly CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.s"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/airfoilgenerator.f90 -o CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.s
 
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o: CMakeFiles/aeroHS.dir/flags.make
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o: src/modules/ask_module.f90
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/ask_module.f90 -o CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o
+
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing Fortran source to CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.i"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -E /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/ask_module.f90 > CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.i
+
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling Fortran source to assembly CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.s"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/ask_module.f90 -o CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.s
+
 CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o: CMakeFiles/aeroHS.dir/flags.make
 CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o: src/modules/cp_module.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/cp_module.f90 -o CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o
 
 CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.i: cmake_force
@@ -137,7 +150,7 @@ CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.s: cmake_force
 
 CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o: CMakeFiles/aeroHS.dir/flags.make
 CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o: src/modules/discretization_module.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/discretization_module.f90 -o CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o
 
 CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.i: cmake_force
@@ -150,7 +163,7 @@ CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.s: cmake_force
 
 CMakeFiles/aeroHS.dir/src/modules/foul.f90.o: CMakeFiles/aeroHS.dir/flags.make
 CMakeFiles/aeroHS.dir/src/modules/foul.f90.o: src/modules/foul.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/foul.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/foul.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/foul.f90 -o CMakeFiles/aeroHS.dir/src/modules/foul.f90.o
 
 CMakeFiles/aeroHS.dir/src/modules/foul.f90.i: cmake_force
@@ -161,9 +174,22 @@ CMakeFiles/aeroHS.dir/src/modules/foul.f90.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling Fortran source to assembly CMakeFiles/aeroHS.dir/src/modules/foul.f90.s"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/foul.f90 -o CMakeFiles/aeroHS.dir/src/modules/foul.f90.s
 
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o: CMakeFiles/aeroHS.dir/flags.make
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o: src/modules/ground_cp.f90
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/ground_cp.f90 -o CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o
+
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing Fortran source to CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.i"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -E /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/ground_cp.f90 > CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.i
+
+CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling Fortran source to assembly CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.s"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/ground_cp.f90 -o CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.s
+
 CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o: CMakeFiles/aeroHS.dir/flags.make
 CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o: src/modules/math_module.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/math_module.f90 -o CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o
 
 CMakeFiles/aeroHS.dir/src/modules/math_module.f90.i: cmake_force
@@ -174,22 +200,9 @@ CMakeFiles/aeroHS.dir/src/modules/math_module.f90.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling Fortran source to assembly CMakeFiles/aeroHS.dir/src/modules/math_module.f90.s"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/math_module.f90 -o CMakeFiles/aeroHS.dir/src/modules/math_module.f90.s
 
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o: CMakeFiles/aeroHS.dir/flags.make
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o: src/modules/multi_cp.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o"
-	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/multi_cp.f90 -o CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o
-
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing Fortran source to CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.i"
-	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -E /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/multi_cp.f90 > CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.i
-
-CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling Fortran source to assembly CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.s"
-	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/multi_cp.f90 -o CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.s
-
 CMakeFiles/aeroHS.dir/src/modules/plot.f90.o: CMakeFiles/aeroHS.dir/flags.make
 CMakeFiles/aeroHS.dir/src/modules/plot.f90.o: src/modules/plot.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/plot.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/plot.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/plot.f90 -o CMakeFiles/aeroHS.dir/src/modules/plot.f90.o
 
 CMakeFiles/aeroHS.dir/src/modules/plot.f90.i: cmake_force
@@ -202,7 +215,7 @@ CMakeFiles/aeroHS.dir/src/modules/plot.f90.s: cmake_force
 
 CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o: CMakeFiles/aeroHS.dir/flags.make
 CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o: src/modules/print_save.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building Fortran object CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/src/modules/print_save.f90 -o CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o
 
 CMakeFiles/aeroHS.dir/src/modules/print_save.f90.i: cmake_force
@@ -220,11 +233,12 @@ aeroHS_OBJECTS = \
 "CMakeFiles/aeroHS.dir/src/modules/MEANline_object.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/PANEL_object.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o" \
+"CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/foul.f90.o" \
+"CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o" \
-"CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/plot.f90.o" \
 "CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o"
 
@@ -236,18 +250,19 @@ bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/AIRFOIL_object.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/MEANline_object.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/PANEL_object.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o
+bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/cp_module.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/discretization_module.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/foul.f90.o
+bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/ground_cp.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/math_module.f90.o
-bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/multi_cp.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/plot.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/src/modules/print_save.f90.o
 bin/aeroHS: CMakeFiles/aeroHS.dir/build.make
 bin/aeroHS: /usr/local/lib/liblapack.a
 bin/aeroHS: /usr/local/lib/libblas.a
 bin/aeroHS: CMakeFiles/aeroHS.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking Fortran executable bin/aeroHS"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/antoniopucciarelli/Documents/FORTRAN/aeroHS_FORTRAN/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking Fortran executable bin/aeroHS"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/aeroHS.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

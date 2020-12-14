@@ -39,12 +39,15 @@ module ground_cp
         
 
         do j=1,GROUNDsize
-            call GROUNDpanel(j)%set_coords(GROUNDstart + (j-1)*deltax, Y, GROUNDstart + j*deltax, Y)
+            call GROUNDpanel(j)%set_coords(GROUNDend + (j-1)*deltax, Y, GROUNDend + j*deltax, Y)
             GROUNDpanel(j)%angle   = theta 
             GROUNDpanel(j)%normal  = (/0.0, 1.0/)
             GROUNDpanel(j)%tangent = (/1.0, 0.0/)
             GROUNDpanel(j)%length  = deltax
-            call GROUNDpanel(j)%compute_ROT()
+            GROUNDpanel(j)%ROT(1,1)  = 1     
+            GROUNDpanel(j)%ROT(1,2)  = 0   
+            GROUNDpanel(j)%ROT(2,1)  = 0   
+            GROUNDpanel(j)%ROT(2,2)  = 1    
             call GROUNDpanel(j)%compute_midpoint('noprt')
             call GROUNDpanel(j)%set_id(j)
          end do  
@@ -98,7 +101,8 @@ module ground_cp
                 matrix(i,j)  = dot_product(normal_ith,integral(PANEL_array(i),PANEL_array(j),'source'))
                 vortex_value = vortex_value + dot_product(normal_ith,integral(PANEL_array(i),PANEL_array(j),'vortex'))
             end do
-           
+            
+            ! induced velocity by vortex distribution          
             matrix(i,PANELsize+1) = vortex_value
             
             ! no penetration condition on the airfoil panels induced by the ground panels
@@ -128,18 +132,21 @@ module ground_cp
         ! no penetration conditions on ground panels
         do i=PANELsize+2,PANELsize+GROUNDsize+1
             
-            normal_ith   = GROUNDpanel(i)%normal
+            normal_ith   = GROUNDpanel(i-(PANELsize+1))%normal
             vortex_value = 0.0  
-           
+            
+            ! induction by airfoil panels on the ground panels 
             do j=1,PANELsize
-                matrix(i,j)  = dot_product(normal_ith,integral(GROUNDpanel(i-PANELsize-1),PANEL_array(j),'source'))
-                vortex_value = vortex_value + dot_product(normal_ith,integral(GROUNDpanel(i-PANELsize-1),PANEL_array(j),'vortex'))
+                matrix(i,j)  = dot_product(normal_ith,integral(GROUNDpanel(i-(PANELsize+1)),PANEL_array(j),'source'))
+                vortex_value = vortex_value + dot_product(normal_ith,integral(GROUNDpanel(i-(PANELsize+1)),PANEL_array(j),'vortex'))
             end do
             
+            ! induction by airfoil distribution of vorticity on the ground panels 
             matrix(i,PANELsize+1) = vortex_value 
             
+            ! induction by gruond panels on themselves
             do j=PANELsize+2,PANELsize+GROUNDsize+1
-                matrix(i,j) = dot_product(normal_ith,integral(GROUNDpanel(i-PANELsize-1), GROUNDpanel(j-PANELsize-1),'source'))
+                matrix(i,j) = dot_product(normal_ith,integral(GROUNDpanel(i-(PANELsize+1)), GROUNDpanel(j-(PANELsize+1)),'source'))
             end do 
 
         end do 
@@ -172,35 +179,34 @@ module ground_cp
         
         ! known conditions on the airfoil panels
         do j=1,PANELsize 
-            vector(j) = dot_product(PANEL_array(j)%normal,velocity)        
+            vector(j) = - dot_product(PANEL_array(j)%normal,velocity)        
         end do 
         
         ! known condition for the KUTTA_JOUKOWSKY theorem
         vector(PANELsize+1) = dot_product(PANEL_array(1)%tangent,velocity) + dot_product(PANEL_array(PANELsize)%tangent,velocity)     
+        vector(PANELsize+1) = - vector(PANELsize+1)
 
         ! known conditions for the ground panels
         do j=PANELsize+2,PANELsize+GROUNDsize+1
-            vector(j) = dot_product(GROUNDpanel(j-PANELsize)%normal,velocity) 
+            vector(j) = - dot_product(GROUNDpanel(j-PANELsize-1)%normal,velocity) 
         end do  
 
         call write_formatted('[','normal','OK','green','] -- vector generated','normal') 
         
-        vector = - vector
-
     end subroutine computeGROUNDvector
     
     subroutine solveGROUND(solution,GROUNDmatrix,GROUNDvector,PANELsize,GROUNDsize)
-        use cp
         use PANEL_object 
+        use cp
         implicit none 
         
         integer(kind=4),intent(in)                                            :: PANELsize
         integer(kind=4),intent(in)                                            :: GROUNDsize 
         real(kind=8),dimension(PANELsize+GROUNDsize+1,PANELsize+GROUNDsize+1) :: GROUNDmatrix
-        real(kind=8),dimension(PANELsize+GROUNDsize+1)                        :: GROUNDvector
         real(kind=8),dimension(PANELsize+GROUNDsize+1,PANELsize+GROUNDsize+1) :: M    
-        integer(kind=4),dimension(PANELsize+GROUNDsize+1)                     :: info
+        real(kind=8),dimension(PANELsize+GROUNDsize+1)                        :: GROUNDvector
         integer(kind=4),dimension(PANELsize+GROUNDsize+1)                     :: pivoting_vec
+        integer(kind=4),dimension(PANELsize+GROUNDsize+1)                     :: info
         real(kind=8),dimension(:),allocatable                                 :: solution  
         
         ! allocation of solution 
@@ -214,7 +220,7 @@ module ground_cp
         call DGESV(PANELsize+GROUNDsize+1, 1, M, PANELsize+GROUNDsize+1, pivoting_vec, solution, PANELsize+GROUNDsize+1, info)
         
         ! testing results
-        call test_matrix(GROUNDmatrix,solution,GROUNDvector,PANELsize+GROUNDsize+1)
+        call test_matrix(GROUNDmatrix,solution,GROUNDvector,PANELsize+GROUNDsize)
 
     end subroutine solveGROUND
 
@@ -316,11 +322,88 @@ module ground_cp
             end do 
         end do
         
-        call write_formatted('[','normal','OK','green','] -- velocity and pressure field computed','normal') 
+        call write_formatted('[','normal','OK','green','] -- velocity and pressure field computed                ','normal', &
+                              '--> FLOWfield.dat','normal') 
 
         close(1)
         deallocate(grid)
 
     end subroutine computeGROUNDfield
+    
+    subroutine compute_L_M(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho)  
+        use PANEL_object 
+        use math_module
+        use FOUL
+        use cp 
+        
+        implicit none 
+        
+        integer(kind=4),intent(in)                                :: PANELsize
+        integer(kind=4),intent(in)                                :: GROUNDsize 
+        type(panel),dimension(PANELsize),intent(in)               :: PANEL_array
+        type(panel),dimension(GROUNDsize),intent(in)              :: GROUNDpanel
+        real(kind=8),dimension(PANELsize+GROUNDsize+1),intent(in) :: solution 
+        real(kind=8),intent(in)                                   :: V
+        real(kind=8),intent(in)                                   :: alpha
+        real(kind=8),intent(in)                                   :: P0
+        real(kind=8),intent(in)                                   :: rho
+        real(kind=8),dimension(2,2)                               :: ROT  
+        real(kind=8),dimension(2)                                 :: velocity
+        real(kind=8),dimension(2)                                 :: vel
+        real(kind=8)                                              :: pressure
+        real(kind=8)                                              :: norm_vel
+        real(kind=8)                                              :: cp_coeff
+        real(kind=8)                                              :: normal_velocity
+        integer(kind=4)                                           :: j, k       
+            
+        ! open file to save data 
+        open(unit=1, file='FLOWfield_airfoil.dat', status='replace')
+        
+        ! exernal velocity 
+        vel(1) = V*cos(alpha)
+        vel(2) = V*sin(alpha) 
+        
+        ! rotation matrix --> alpha angle > 0 if it's counterclockwise
+        ! -- the sine and cosine terms respect the direct rotation matrix description 
+        ROT(1,1) =  cos(alpha)
+        ROT(2,1) =  sin(alpha) 
+        ROT(1,2) = -sin(alpha)
+        ROT(2,2) =  cos(alpha)      
+
+        do j=1,PANELsize 
+
+             velocity = (/0.0, 0.0/)
+            
+            do k=1,PANELsize 
+                velocity = velocity + integral(PANEL_array(j),PANEL_array(k),'source')*solution(k)
+                velocity = velocity + integral(PANEL_array(j),PANEL_array(k),'vortex')*solution(PANELsize+1)
+            end do
+            
+            do k=1,GROUNDsize 
+                velocity = velocity + integral(PANEL_array(j),GROUNDpanel(k),'source')*solution(PANELsize+1+k)
+            end do
+
+            velocity = velocity + vel
+            
+            norm_vel = norm(velocity)
+
+            pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)
+
+            cp_coeff = 1 - (norm_vel/V)**2  
+                
+            normal_velocity = dot_product(PANEL_array(j)%normal,velocity)
+
+            write(1,*) PANEL_array(j)%midpoint, matmul(ROT,PANEL_array(j)%midpoint), &
+                       velocity(1), velocity(2), norm_vel, & 
+                       pressure   , cp_coeff   , normal_velocity       
+            
+        end do
+        
+        call write_formatted('[','normal','OK','green','] -- velocity and pressure field around airfoil computed ','normal', & 
+                             '--> FLOWfield_airfoil.dat','normal') 
+
+        close(1)
+
+    end subroutine compute_L_M
 
 end module ground_cp

@@ -15,6 +15,7 @@ module airfoilgenerator
         use MEANline_object
         use discretization_module
         use FOUL
+        use math_module  
 
         implicit none
 
@@ -43,6 +44,11 @@ module airfoilgenerator
         call airfoil%set_AIRFOILname() ! setting airfoil name
 
         call airfoil%set_npoints()     ! setting airfoil # of discretisation points
+        
+        ! setting properties 
+        ! PAY ATTENTION the properties are already set in the setting_properties() subroutine
+        airfoil%AOA     = alpha*180/pi
+        airfoil%scaling = 1.0
 
         dim = airfoil%get_npoints()
 
@@ -185,6 +191,8 @@ module airfoilgenerator
                     ! asking LE position
                     print*, 'type leading edge position'
                     read*, transl(1), transl(2)
+
+                    airfoil%transl = transl
                     
                     ! translation process                        
                     do j=1,2*dim-2
@@ -231,6 +239,7 @@ module airfoilgenerator
     end subroutine make_airfoil
 
     subroutine ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
+    ! this subroutine allows to ask the user the action to take
         use cp 
         use AIRFOIL_object
         use PANEL_object

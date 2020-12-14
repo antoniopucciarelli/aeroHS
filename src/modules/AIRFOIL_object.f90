@@ -199,11 +199,11 @@ module AIRFOIL_object
         open(unit=60, file=filename, status='replace')
 
         write(60,*) 'AIRFOIL OBJECT'
-        write(60,*) '    name:                  ', this%airfoilname
-        write(60,*) '    discretisation points: ', this%get_npoints()
-        write(60,*) '    scaling factor:        ', this%get_scaling()
-        write(60,*) '    AOA:                   ', this%get_AOA() 
-        write(60,*) '    translation [x,y]:     ', this%get_transl()
+        write(60,*) '    name                  :', this%airfoilname
+        write(60,*) '    discretisation points :', this%get_npoints()
+        write(60,*) '    scaling factor        :', this%get_scaling()
+        write(60,*) '    AOA                   :', this%get_AOA() 
+        write(60,*) '    translation [x,y]     :', this%get_transl()
         write(60,*) new_line('A')
 
         close(60)
@@ -214,11 +214,11 @@ module AIRFOIL_object
         class(NACA_airfoil),intent(in) :: this
 
         print*, 'AIRFOIL OBJECT'
-        print*, '    name:                  ', this%airfoilname
-        print*, '    discretisation points: ', this%get_npoints()
-        print*, '    scaling factor:        ', this%get_scaling()
-        print*, '    AOA:                   ', this%get_AOA() 
-        print*, '    translation [x,y]:     ', this%get_transl()
+        print*, '    name                  : ', this%airfoilname
+        print*, '    discretisation points : ', this%get_npoints()
+        print*, '    scaling factor        : ', this%get_scaling()
+        print*, '    AOA                   : ', this%get_AOA() 
+        print*, '    translation [x,y]     : ', this%get_transl()
         print*, new_line('A')
     end subroutine print_data
 

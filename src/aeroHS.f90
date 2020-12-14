@@ -10,9 +10,10 @@ program aeroHS
     use AIRFOIL_object
     use PANEL_object
     use print_save
-    use plot
+    use ask_module
     use ground_cp
     use cp
+    use plot
 
     implicit none
     
@@ -52,13 +53,13 @@ program aeroHS
         print*, '   option 2 --> analize 2 airfoils'
         print*, '                   1 --> [L; M]'
         print*, '   option 3 --> analize ground effect'
-        print*, '                   1 --> [L; M]'
+        print*, '                   1 --> compute  Cp'
         print*, 'type an option'
         read*,  selection_type 
 
         if(selection_type == 1)then
             
-            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection)
+            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
 
             if(selection == 1)then
             
@@ -86,7 +87,7 @@ program aeroHS
                 allocate(cp_vec(1:PANELsize))
                 cp_vec = compute_cp(Vvec,V,PANELsize)
 
-                !call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
+                call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
 
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
                 ! high demanding process 
@@ -189,7 +190,7 @@ program aeroHS
         else if(selection_type == 3)then 
             
             ! generate flow properties
-            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection)
+            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
             
             ! generate airfoil geometry 
             call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
@@ -201,14 +202,31 @@ program aeroHS
             call computeGROUNDmatrix(matrix,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize)
 
             ! compute known vector 
-            call computeGROUNDvector(vector,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,alpha,V)
+            call computeGROUNDvector(vector,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,real(0.0,8),V)
 
             ! computing solution
             call solveGROUND(solution,matrix,vector,PANELsize,GROUNDsize)
-
+            
+            ! asking to save matrices and vectors
+            call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
+            
             ! computing velocity and pressure field 
-            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho)
+            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
+            
+            ! computing L and M
+            call compute_L_M(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
 
+            ! askig user to continue
+            call ask_to_continue_cp(i)
+
+            ! deallocation process
+            deallocate(PANEL_array)
+            deallocate(GROUNDpanel)
+            deallocate(MEAN_array)
+            deallocate(solution)
+            deallocate(matrix)
+            deallocate(vector)
+        
         end if 
     end do 
 
