@@ -419,6 +419,10 @@ module cp
         real(kind=8),dimension(PANELsize)              :: vector
         integer(kind=4)                                :: i, j
         real(kind=8),dimension(2)                      :: tangent_ith, normal_ith
+        real(kind=8)                                   :: circulation 
+        
+        ! setting circualtion null value 
+        circulation = 0.0  
 
         do i=1,PANELsize
 
@@ -452,8 +456,14 @@ module cp
         
         end do
 
+        do i=1,PANELsize 
+            circulation = circulation + solution(PANELsize+1)*PANEL_array(i)%get_length() 
+        end do
+
         compute_vel = matmul(matrix, solution) + vector 
         
+        print*, 'total circulation (GAMMA) = ', circulation 
+
     end function compute_vel
 
     function compute_pressure(P0,V,rho,Vvec,PANELsize) 
@@ -581,6 +591,7 @@ module cp
     ! this subroutine computes the velocity field of the system after have computed the values of every singularity [gamma; sigma(i)]     
         use PANEL_object
         use math_module
+        use FOUL
         implicit none 
         
         ! generating a grid of measure points 
@@ -591,8 +602,8 @@ module cp
         end type array_type 
         
         integer(kind=4),intent(in)                     :: PANELsize
-        integer(kind=4)                                :: ncols = 2e+2
-        integer(kind=4)                                :: nrows = 1e+2
+        integer(kind=4)                                :: ncols = 2.5e+2
+        integer(kind=4)                                :: nrows = 1.5e+2
         integer(kind=4)                                :: i, j, k
         real(kind=8)                                   :: deltax, deltay
         real(kind=8)                                   :: x_start, x_end
@@ -618,10 +629,19 @@ module cp
         end do
             
         ! allocating grid dimensions
-        x_start = -0.2
-        x_end   =  1.5
-        y_start = -0.2 
-        y_end   =  0.2
+        call write_formatted('SETTING GRID','yellow')
+        print*, 'type x coords:'
+        print*, '   start point'
+        read*,  x_start
+        print*, '   end point'
+        read*,  x_end
+        print*, 'type y coords:'
+        print*, '   start point'
+        read*,  y_start 
+        print*, '   end point'
+        read*,  y_end
+
+        call write_formatted('COMPUTING FIELD','yellow')
 
         ! grid dimension allocation process
         deltax = (x_end - x_start)/ncols
@@ -679,7 +699,6 @@ module cp
         end do
 
         close(1)
-   
         deallocate(grid)
     end subroutine compute_field
 

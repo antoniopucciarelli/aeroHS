@@ -6,6 +6,7 @@ module ask_module
     subroutine setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
     ! this subroutine sets the flow's external conditions (at infinity) 
         use math_module
+        use FOUL
         implicit none
          
         real(kind=8),intent(inout)    :: P0
@@ -20,6 +21,8 @@ module ask_module
         integer(kind=4)               :: x 
 
         x = 1
+        
+        call write_formatted('SETTING SYSTEM PROPERTIES','yellow')
         
         if(selection_type == 1)then  
             do while(x==1)
@@ -103,13 +106,43 @@ module ask_module
 
     end subroutine setting_properties
 
+    subroutine ask_method(panel_type)
+    ! setting panel_type
+        ! this variable allows to compute the flow with different approaches 
+        ! -- source 
+        ! -- vortex 
+        implicit none 
+
+        character(len=6),intent(out) :: panel_type 
+        integer(kind=4)              :: selection_type   
+
+        print*, 'choose how analize the system: (default = vortex)'
+        print*, '--- source --> type(1)'
+        print*, '--- vortex --> type(2)'
+        read*, selection_type
+        
+        select case(selection_type) 
+            case(1)            
+                panel_type = 'source'
+            case(2)
+                panel_type = 'vortex'
+            case default
+                panel_type = 'vortex'
+        end select  
+
+    end subroutine ask_method  
+
     subroutine ask_angle(start_angle,end_angle,dim)
+        use FOUL
         implicit none 
 
         integer(kind=4),intent(inout) :: start_angle
         integer(kind=4),intent(inout) :: end_angle
         integer(kind=4),intent(inout) :: dim
-
+        
+        
+        call write_formatted('SETTING ANGLE SEQUENCE','yellow')
+        
         print*, 'type the initial AOA of the sequence'
         read*, start_angle
         print*, 'type the end AOA of the sequence'
@@ -124,6 +157,7 @@ module ask_module
         character(len=1)              :: resp
         integer(kind=4),intent(inout) :: i 
         
+        print*,  new_line('(A)')        
         print*, 'do you want to create a new study? [Y\n]'
         read*, resp
         

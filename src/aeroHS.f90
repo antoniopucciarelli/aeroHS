@@ -43,18 +43,20 @@ program aeroHS
     integer(kind=4)                         :: selection_type = 0
     integer(kind=4)                         :: i              = 1
     integer(kind=4)                         :: GROUNDsize
+    real(kind=8)                            :: CL
     character(len=30)                       :: filename
-    
+    character(len=6)                        :: panel_type     
+
     do while(i==1)
         
         print*, 'there are 3 different options:'
         print*, '   option 1 --> analize 1 airfoil'
-        print*, '                   1 --> compute  Cp'
+        print*, '                   1 --> compute  Cp, Cl'
         print*, '                   2 --> compute [Cp; Cl; velocity; pressure]'
         print*, '   option 2 --> analize 2 airfoils'
         print*, '                   1 --> [L; M]'
         print*, '   option 3 --> analize ground effect'
-        print*, '                   1 --> compute  Cp'
+        print*, '                   1 --> compute  Cp, Cl'
         print*, 'type an option'
         read*,  selection_type 
 
@@ -90,6 +92,10 @@ program aeroHS
 
                 allocate(cp_vec(1:PANELsize))
                 cp_vec = compute_cp(Vvec,V,PANELsize)
+                
+                ! compute CL value 
+                CL = compute_cl(cp_vec,PANEL_array,PANELsize)
+                print*, 'CL value = ', CL
 
                 ! asking to save matrices, known vector and solution
                 ! call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
@@ -116,6 +122,9 @@ program aeroHS
 
                 call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
 
+                ! autosaving geometry for plots
+                call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
+                
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
             
@@ -140,7 +149,10 @@ program aeroHS
 
                 allocate(cp_vec(1:PANELsize))
                 cp_vec = compute_cp(Vvec,V,PANELsize)
-                
+
+                ! compute CL value 
+                CL = compute_cl(cp_vec,PANEL_array,PANELsize)
+                print*, 'CL value = ', CL
 
                 ! asking to save matrices, known vector and solution
                 ! call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
@@ -197,18 +209,24 @@ program aeroHS
             ! compute moment and lift
             
         else if(selection_type == 3)then 
-            
+
+            ! asking method to adopt for the computation
+            call ask_method(panel_type)            
+
             ! generate flow properties
             call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
             
             ! generate airfoil geometry 
             call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
 
+            ! autosaving geometry for plots
+            call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
+            
             ! ground panels generation             
             call generate_ground(GROUNDpanel,GROUNDsize)
                  
             ! compute system matrix 
-            call computeGROUNDmatrix(matrix,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize)
+            call computeGROUNDmatrix(matrix,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,panel_type)
 
             ! compute known vector 
             call computeGROUNDvector(vector,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,real(0.0,8),V)
@@ -222,13 +240,18 @@ program aeroHS
             !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
             ! high demanding process 
             ! -- it depends on the number of point for the field discretization 
-            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
+            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho,panel_type)
             !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
 
             ! computing cp, pressure and velocity around the airfoil 
-            call compute_airfoilFIELD(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
+            allocate(cp_vec(PANELsize))
+            call compute_airfoilFIELD(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,cp_vec,P0,real(0.0,8),V,rho,panel_type)
+                        
+            ! compute CL value 
+            CL = compute_cl(cp_vec,PANEL_array,PANELsize)
+            print*, 'CL value = ', CL    
 
-            ! askig user to continue
+            ! asking user to continue
             call ask_to_continue_cp(i)
 
             ! deallocation process

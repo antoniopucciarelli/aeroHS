@@ -244,6 +244,7 @@ module airfoilgenerator
         use AIRFOIL_object
         use PANEL_object
         use MEANline_object
+        use FOUL
 
         implicit none 
         
@@ -261,6 +262,9 @@ module airfoilgenerator
         x = 1
 
         do while(x==1)
+            
+            call write_formatted('SETTING GEOMETRY','yellow')
+
             if(selection == 3)then 
                 print*, 'creaing a new 4 digits airfoil'
 
@@ -295,6 +299,8 @@ module airfoilgenerator
                 end select 
             end if 
         end do 
+        
+        print*, new_line('(A)')
 
     end subroutine ask_geometry 
 

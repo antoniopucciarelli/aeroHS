@@ -54,6 +54,7 @@ CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build
 CMakeFiles/aeroHS.dir/build: CMakeFiles/aeroHS.dir/src/modules/airfoilgenerator.f90.o.provides.build
 
+CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o: CMakeFiles/aeroHS.dir/foul.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o: CMakeFiles/aeroHS.dir/math_module.mod.stamp
 CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o.provides.build: CMakeFiles/aeroHS.dir/ask_module.mod.stamp
 CMakeFiles/aeroHS.dir/ask_module.mod.stamp: CMakeFiles/aeroHS.dir/src/modules/ask_module.f90.o
