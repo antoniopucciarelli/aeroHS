@@ -330,7 +330,7 @@ module ground_cp
 
     end subroutine computeGROUNDfield
     
-    subroutine compute_L_M(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho)  
+    subroutine compute_airfoilFIELD(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho)  
         use PANEL_object 
         use math_module
         use FOUL
@@ -404,6 +404,6 @@ module ground_cp
 
         close(1)
 
-    end subroutine compute_L_M
+    end subroutine compute_airfoilFIELD
 
 end module ground_cp

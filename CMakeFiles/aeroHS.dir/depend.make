@@ -7,6 +7,7 @@ CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/airfoil_object.mod
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/airfoilgenerator.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/ask_module.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/cp.mod.stamp
+CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/discretization_module.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/ground_cp.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/meanline_object.mod.stamp
 CMakeFiles/aeroHS.dir/src/aeroHS.f90.o: CMakeFiles/aeroHS.dir/panel_object.mod.stamp

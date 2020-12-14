@@ -1,6 +1,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! author           : antonio pucciarelli                                  !
-! date of creation : 11/20/2020 24:04                                     !
+! date of creation : 11/20/2020                                           !
 ! written with     : vim                                                  ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program aeroHS
@@ -12,6 +12,7 @@ program aeroHS
     use print_save
     use ask_module
     use ground_cp
+    use discretization_module  
     use cp
     use plot
 
@@ -63,8 +64,11 @@ program aeroHS
 
             if(selection == 1)then
             
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
-
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
+                
+                ! autosaving geometry for plots
+                call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
+                
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
                 
@@ -87,7 +91,8 @@ program aeroHS
                 allocate(cp_vec(1:PANELsize))
                 cp_vec = compute_cp(Vvec,V,PANELsize)
 
-                call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
+                ! asking to save matrices, known vector and solution
+                ! call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
 
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
                 ! high demanding process 
@@ -109,7 +114,7 @@ program aeroHS
 
             else if(selection == 2)then
 
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
 
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
@@ -135,10 +140,14 @@ program aeroHS
 
                 allocate(cp_vec(1:PANELsize))
                 cp_vec = compute_cp(Vvec,V,PANELsize)
+                
 
-                call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
-
-                !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
+                ! asking to save matrices, known vector and solution
+                ! call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
+                
+                !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
+                ! high demanding process 
+                ! -- it depends on the dimension of the system and its discrtization
                 call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8))
                 !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
 
@@ -157,7 +166,7 @@ program aeroHS
 
             else if(selection == 3)then
 
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,real(0.0,8))
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,real(0.0,8),selection)
 
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
@@ -193,7 +202,7 @@ program aeroHS
             call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
             
             ! generate airfoil geometry 
-            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha)
+            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
 
             ! ground panels generation             
             call generate_ground(GROUNDpanel,GROUNDsize)
@@ -207,14 +216,17 @@ program aeroHS
             ! computing solution
             call solveGROUND(solution,matrix,vector,PANELsize,GROUNDsize)
             
-            ! asking to save matrices and vectors
-            call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
+            ! asking to save matrices, known vector and solution
+            ! call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
             
-            ! computing velocity and pressure field 
+            !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
+            ! high demanding process 
+            ! -- it depends on the number of point for the field discretization 
             call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
-            
-            ! computing L and M
-            call compute_L_M(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
+            !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
+
+            ! computing cp, pressure and velocity around the airfoil 
+            call compute_airfoilFIELD(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho)
 
             ! askig user to continue
             call ask_to_continue_cp(i)
