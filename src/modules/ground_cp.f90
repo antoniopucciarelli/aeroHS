@@ -282,7 +282,7 @@ module ground_cp
         integer(kind=4)                                           :: x
 
         ! declaring grid dimensions
-        nrows = 71
+        nrows = 100
         ncols = 300
 
         ! grid allocation process in memory

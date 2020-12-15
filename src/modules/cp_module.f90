@@ -511,13 +511,10 @@ module cp
         integer(kind=4)                              :: i
 
         compute_cl = 0.0
-        S          = 0.0
         
         do i=1,PANELsize 
 
             panel_length = PANEL_array(i)%get_length()
-
-            S = S + panel_length
 
             if(PANEL_array(i)%get_position() == 'UP')then
                 panel_length = - panel_length
@@ -527,7 +524,7 @@ module cp
 
         end do 
 
-        S = abs(norm(PANEL_array(PANELsize/2+1)%coords1 - PANEL_array(1)%coords1))
+        S = norm(PANEL_array(PANELsize/2+1)%coords1 - PANEL_array(1)%coords1)
 
         compute_cl = compute_cl / S
 
@@ -622,8 +619,8 @@ module cp
         integer(kind=4)                                :: x
 
         ! # of rows and columns 
-        nrows = 71
-        ncols = 150
+        nrows = 100
+        ncols = 300
 
         ! grid allocation process in memory
         allocate(grid(nrows,ncols))
@@ -678,7 +675,7 @@ module cp
                 velocity(1) = 0.0
                 velocity(2) = 0.0
                 
-                if(grid(i,j)%coords(1) >= PANEL_array(PANELsize/2)%coords1(1) .and. & 
+                if(grid(i,j)%coords(1) >= PANEL_array(PANELsize/2+1)%coords1(1) .and. & 
                    grid(i,j)%coords(1) <= PANEL_array(1)%coords1(1))then 
                     
                     x = 0
@@ -701,7 +698,7 @@ module cp
                         k = k + 1
 
                     end do
-               end if
+                end if
 
                 ! computing velocity through integral funcition
                 do k=1,PANELsize
@@ -716,11 +713,13 @@ module cp
                 ! computing norm of velocity
                 norm_vel = norm(velocity)
                 
-                if(x == 1)then 
-                    velocity = (/0.0, 0.0/)
-                    norm_vel = 0
-                end if
-
+                if(grid(i,j)%coords(1) >= PANEL_array(PANELsize/2)%coords2(1) .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array(1)%coords1(1))then                 
+                    if(x == 1)then 
+                        velocity = (/0.0, 0.0/)
+                        norm_vel = 0
+                    end if
+                end if 
                 ! computing pressure
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
                 

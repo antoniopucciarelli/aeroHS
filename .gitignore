@@ -1,4 +1,5 @@
-*.mod 
+*.mod
+*.dat 
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
