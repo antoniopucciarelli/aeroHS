@@ -223,7 +223,7 @@ module airfoilgenerator
                 ! call ask_and_save(airfoil,PANELarray,MEANLINEarray)
 
                 ! printing data
-                ! call GNUplot_print(airfoil,PANELarray,MEANLINEarray)
+                 call GNUplot_print(airfoil,PANELarray,MEANLINEarray)
             !!!!!!!!!!!!!!!!!!!!!!! SAVING & GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!
             
             ! data deallocation procedure

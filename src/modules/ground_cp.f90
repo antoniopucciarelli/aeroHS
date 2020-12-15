@@ -140,7 +140,7 @@ module ground_cp
 
         do j=1,GROUNDsize 
             matrix(PANELsize+1,j+PANELsize+1) = dot_product(tangent_first,integral(PANEL_array(1),GROUNDpanel(j),panel_type)) + &
-                                            dot_product(tangent_last,integral(PANEL_array(PANELsize),GROUNDpanel(j),panel_type))
+                                                dot_product(tangent_last,integral(PANEL_array(PANELsize),GROUNDpanel(j),panel_type))
         end do
         
         ! no penetration conditions on ground panels
@@ -279,10 +279,11 @@ module ground_cp
         type(array_type),dimension(:,:),allocatable               :: grid
         integer(kind=4)                                           :: nrows, ncols
         character(len=6),intent(in)                               :: panel_type 
+        integer(kind=4)                                           :: x
 
         ! declaring grid dimensions
-        ncols = 2.5e+2
-        nrows = 1.5e+2
+        nrows = 71
+        ncols = 300
 
         ! grid allocation process in memory
         allocate(grid(nrows,ncols))
@@ -335,6 +336,31 @@ module ground_cp
                 ! described by the dummy_panel midpoint 
                 dummy_panel%midpoint = grid(i,j)%coords
                 
+                if(grid(i,j)%coords(1) >= PANEL_array(PANELsize/2)%coords1(1) .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array(1)%coords1(1))then 
+                    
+                    x = 0
+                    k = 1
+
+                    do while(x == 0 .and. k<=PANELsize/2)
+                             
+                        if(grid(i,j)%coords(2) >= PANEL_array(PANELsize/2-k+1)%midpoint(2) .and. &
+                           grid(i,j)%coords(2) <= PANEL_array(PANELsize/2+k)%midpoint(2))then
+                            
+                           if(grid(i,j)%coords(1) <= PANEL_array(PANELsize/2+k)%coords2(1) .and. & 
+                              grid(i,j)%coords(1) >= PANEL_array(PANELsize/2+k-1)%coords1(1))then
+                                                                  
+                                x = 1                             
+                                                                  
+                           end if                                 
+                                                                  
+                        end if
+                        
+                        k = k + 1
+
+                    end do
+                end if
+                
                 ! computing induction by the airfoil panels 
                 ! source distribution induction 
                 ! vortex distribution induction 
@@ -358,6 +384,10 @@ module ground_cp
                 ! computing the pressure with BERNOULLI's theorem 
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
                 
+                if(x == 1)then 
+                    velocity = (/0.0, 0.0/)
+                    norm_vel = 0
+                end if
               !  ! plotting condition --> avoid to display non physical values for pressure 
               !  if(pressure < 0)then 
               !      pressure = - 0.5

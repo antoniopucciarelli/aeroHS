@@ -235,7 +235,7 @@ program aeroHS
             call solveGROUND(solution,matrix,vector,PANELsize,GROUNDsize)
             
             ! asking to save matrices, known vector and solution
-            ! call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
+            call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
             
             !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
             ! high demanding process 
@@ -261,7 +261,8 @@ program aeroHS
             deallocate(solution)
             deallocate(matrix)
             deallocate(vector)
-        
+            deallocate(cp_vec)        
+
         end if 
     end do 
 

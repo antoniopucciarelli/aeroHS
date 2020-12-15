@@ -602,8 +602,8 @@ module cp
         end type array_type 
         
         integer(kind=4),intent(in)                     :: PANELsize
-        integer(kind=4)                                :: ncols = 2.5e+2
-        integer(kind=4)                                :: nrows = 1.5e+2
+        integer(kind=4)                                :: ncols 
+        integer(kind=4)                                :: nrows 
         integer(kind=4)                                :: i, j, k
         real(kind=8)                                   :: deltax, deltay
         real(kind=8)                                   :: x_start, x_end
@@ -619,6 +619,11 @@ module cp
         type(panel)                                    :: dummy_panel
         type(panel),dimension(PANELsize),intent(in)    :: PANEL_array
         type(array_type),dimension(:,:),allocatable    :: grid
+        integer(kind=4)                                :: x
+
+        ! # of rows and columns 
+        nrows = 71
+        ncols = 150
 
         ! grid allocation process in memory
         allocate(grid(nrows,ncols))
@@ -673,6 +678,31 @@ module cp
                 velocity(1) = 0.0
                 velocity(2) = 0.0
                 
+                if(grid(i,j)%coords(1) >= PANEL_array(PANELsize/2)%coords1(1) .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array(1)%coords1(1))then 
+                    
+                    x = 0
+                    k = 1
+
+                    do while(x == 0 .and. k<=PANELsize/2)
+                             
+                        if(grid(i,j)%coords(2) >= PANEL_array(PANELsize/2-k+1)%midpoint(2) .and. &
+                           grid(i,j)%coords(2) <= PANEL_array(PANELsize/2+k)%midpoint(2))then
+                            
+                           if(grid(i,j)%coords(1) <= PANEL_array(PANELsize/2+k)%coords2(1) .and. & 
+                              grid(i,j)%coords(1) >= PANEL_array(PANELsize/2+k-1)%coords1(1))then
+                                                                  
+                                x = 1                             
+                                                                  
+                           end if                                 
+                                                                  
+                        end if
+                        
+                        k = k + 1
+
+                    end do
+               end if
+
                 ! computing velocity through integral funcition
                 do k=1,PANELsize
                     velocity = velocity + integral(dummy_panel,PANEL_array(k),'source') * solution(k)                    
@@ -685,6 +715,11 @@ module cp
                     
                 ! computing norm of velocity
                 norm_vel = norm(velocity)
+                
+                if(x == 1)then 
+                    velocity = (/0.0, 0.0/)
+                    norm_vel = 0
+                end if
 
                 ! computing pressure
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
