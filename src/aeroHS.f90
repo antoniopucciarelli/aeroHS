@@ -32,7 +32,8 @@ program aeroHS
     real(kind=8),dimension(:,:),allocatable :: cl_alpha
     integer(kind=4)                         :: PANELsize      = 0
     integer(kind=4)                         :: maxsize        = 0
-    real(kind=8)                            :: alpha          = 0.0
+    real(kind=8)                            :: alpha1         = 0.0
+    real(kind=8)                            :: alpha2         = 0.0
     real(kind=8)                            :: V              = 0.0
     real(kind=8)                            :: P0             = 0.0
     real(kind=8)                            :: rho            = 0.0
@@ -62,11 +63,11 @@ program aeroHS
 
         if(selection_type == 1)then
             
-            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
+            call setting_properties(P0,V,rho,alpha1,alpha2,start_angle,end_angle,dim,selection,selection_type)
 
             if(selection == 1)then
             
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection)
                 
                 ! autosaving geometry for plots
                 call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
@@ -120,7 +121,7 @@ program aeroHS
 
             else if(selection == 2)then
 
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection)
 
                 ! autosaving geometry for plots
                 call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
@@ -214,10 +215,10 @@ program aeroHS
             call ask_method(panel_type)            
 
             ! generate flow properties
-            call setting_properties(P0,V,rho,alpha,start_angle,end_angle,dim,selection,selection_type)
+            call setting_properties(P0,V,rho,alpha1,alpha2,start_angle,end_angle,dim,selection,selection_type)
             
             ! generate airfoil geometry 
-            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
+            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection)
 
             ! autosaving geometry for plots
             call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
