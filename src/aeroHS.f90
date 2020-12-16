@@ -5,22 +5,29 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program aeroHS
     
+    use discretization_module  
     use airfoilgenerator
     use MEANline_object
     use AIRFOIL_object
     use PANEL_object
-    use print_save
     use ask_module
+    use print_save
     use ground_cp
-    use discretization_module  
-    use cp
+    use multi_cp
     use plot
+    use cp
 
     implicit none
     
     type(NACA_airfoil)                      :: airfoil
-    type(MEANline),dimension(:),allocatable :: MEAN_array    
+    type(NACA_airfoil)                      :: airfoil1
+    type(NACA_airfoil)                      :: airfoil2
+    type(MEANline),dimension(:),allocatable :: MEAN_array   
+    type(MEANline),dimension(:),allocatable :: MEAN_array1
+    type(MEANline),dimension(:),allocatable :: MEAN_array2 
     type(panel),dimension(:),allocatable    :: PANEL_array
+    type(panel),dimension(:),allocatable    :: PANEL_array1
+    type(panel),dimension(:),allocatable    :: PANEL_array2 
     type(panel),dimension(:),allocatable    :: GROUNDpanel
     integer(kind=4)                         :: MEANsize
     real(kind=8),dimension(:,:),allocatable :: matrix
@@ -31,7 +38,10 @@ program aeroHS
     real(kind=8),dimension(:),allocatable   :: cp_vec 
     real(kind=8),dimension(:,:),allocatable :: cl_alpha
     integer(kind=4)                         :: PANELsize      = 0
+    integer(kind=4)                         :: PANELsize1     = 0
+    integer(kind=4)                         :: PANELsize2     = 0
     integer(kind=4)                         :: maxsize        = 0
+    real(kind=8)                            :: alpha          = 0.0
     real(kind=8)                            :: alpha1         = 0.0
     real(kind=8)                            :: alpha2         = 0.0
     real(kind=8)                            :: V              = 0.0
@@ -46,6 +56,8 @@ program aeroHS
     integer(kind=4)                         :: GROUNDsize
     real(kind=8)                            :: CL
     character(len=30)                       :: filename
+    character(len=30)                       :: filename1
+    character(len=30)                       :: filename2
     character(len=6)                        :: panel_type     
 
     do while(i==1)
@@ -66,11 +78,16 @@ program aeroHS
             call setting_properties(P0,V,rho,alpha1,alpha2,start_angle,end_angle,dim,selection,selection_type)
 
             if(selection == 1)then
-            
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection)
+                
+                ! describing file name
+                filename  = 'GNUplot_coord_data.dat'
+                filename1 = 'GNUplot_mean_data.dat'
+                filename2 = 'GNUplot_tg_norm.dat'
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection, & 
+                                  filename,filename1,filename2)
                 
                 ! autosaving geometry for plots
-                call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
+                call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints(),filename,filename1,filename2)
                 
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
@@ -105,7 +122,8 @@ program aeroHS
                 ! high demanding process 
                 ! -- it depends on the dimension of the system and its discrtization
                 ! alpha = real(0.0,8)
-                call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8))
+                filename = 'FLOWfield.dat'
+                call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8),filename)
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
 
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
@@ -121,10 +139,15 @@ program aeroHS
 
             else if(selection == 2)then
 
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection)
+                ! describing file name
+                filename  = 'GNUplot_coord_data.dat'
+                filename1 = 'GNUplot_mean_data.dat'
+                filename2 = 'GNUplot_tg_norm.dat'
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection, & 
+                                  filename,filename1,filename2)
 
                 ! autosaving geometry for plots
-                call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
+                call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints(),filename,filename1,filename2)
                 
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
@@ -161,7 +184,8 @@ program aeroHS
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
                 ! high demanding process 
                 ! -- it depends on the dimension of the system and its discrtization
-                call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8))
+                filename = 'FLOWfield.dat'
+                call compute_field(PANEL_array,PANELsize,solution,V,P0,rho,real(0.0,8),filename)
                 !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
 
                 !!!!!!!!!!!!!!!!!!!!!! PLOTTING RESULTS !!!!!!!!!!!!!!!!!!!!!!!!
@@ -179,7 +203,12 @@ program aeroHS
 
             else if(selection == 3)then
 
-                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,real(0.0,8),selection)
+                ! describing file name
+                filename  = 'GNUplot_coord_data.dat'
+                filename1 = 'GNUplot_mean_data.dat'
+                filename2 = 'GNUplot_tg_norm.dat'
+                call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,real(0.0,8),selection, & 
+                                  filename,filename1,filename2)
 
                 ! computing matrix process
                 call compute_matrix(matrix,PANEL_array,PANELsize)
@@ -201,14 +230,34 @@ program aeroHS
             deallocate(matrix)
             
         else if(selection_type == 2)then 
-                    
-            ! call 2 times airfoil generator
-            ! modify extension at every suborutine and function regarding # of panels
-            ! use multi_cp to made this changements -- you have cp that works fine
-            ! enable difference dimension between airfoils
-            ! modify matrix generation
-            ! compute moment and lift
             
+            ! generating airfoils 
+            call generate_airfoils(selection,selection_type,alpha1,alpha2,PANELsize1,PANELsize2,PANEL_array1,PANEL_array2, &
+                                   MEAN_array1,MEAN_array2)
+            
+            ! computing system matrix 
+            call compute_multi_matrix(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,matrix)
+  
+            ! computing vector matrix 
+            call compute_multi_vector(vector,PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,alpha,V)
+            
+            ! computing and testing solution
+            call solvemulti(PANELsize1,PANELsize2,matrix,vector,solution)
+             
+            ! computing velocity and pressure fields
+            ! plotting pressure field 
+            filename = 'FLOWfieldMULTI.dat'
+            call compute_multi_field(solution,PANEL_array1,PANEL_array2,PANELsize1,PANELsize2,P0,alpha,V,rho,filename) 
+            
+            ! deallocation process
+            deallocate(matrix)
+            deallocate(vector)
+            deallocate(PANEL_array1)
+            deallocate(PANEL_array2)
+            deallocate(solution) 
+            deallocate(MEAN_array1)
+            deallocate(MEAN_array2)
+
         else if(selection_type == 3)then 
 
             ! asking method to adopt for the computation
@@ -218,10 +267,15 @@ program aeroHS
             call setting_properties(P0,V,rho,alpha1,alpha2,start_angle,end_angle,dim,selection,selection_type)
             
             ! generate airfoil geometry 
-            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection)
+            ! describing file name
+            filename  = 'GNUplot_coord_dataGE.dat'
+            filename1 = 'GNUplot_mean_dataGE.dat'
+            filename2 = 'GNUplot_tg_normGE.dat'
+            call ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha1,selection, & 
+                              filename,filename1,filename2)
 
             ! autosaving geometry for plots
-            call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints())
+            call GNUplot_saving(PANEL_array,MEAN_array,airfoil%get_npoints(),filename,filename1,filename2)
             
             ! ground panels generation             
             call generate_ground(GROUNDpanel,GROUNDsize)
@@ -241,7 +295,9 @@ program aeroHS
             !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
             ! high demanding process 
             ! -- it depends on the number of point for the field discretization 
-            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho,panel_type)
+            filename = 'FLOWfieldGE.dat'
+            call computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,real(0.0,8),V,rho,panel_type, & 
+                                    filename)
             !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
 
             ! computing cp, pressure and velocity around the airfoil 

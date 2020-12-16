@@ -243,7 +243,7 @@ module ground_cp
 
     end subroutine solveGROUND
 
-    subroutine computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho,panel_type)
+    subroutine computeGROUNDfield(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,P0,alpha,V,rho,panel_type,filename)
     ! this suboruitne computes the velocity and pressure field in the system 
         use PANEL_object 
         use math_module
@@ -279,6 +279,7 @@ module ground_cp
         type(array_type),dimension(:,:),allocatable               :: grid
         integer(kind=4)                                           :: nrows, ncols
         character(len=6),intent(in)                               :: panel_type 
+        character(len=30),intent(in)                              :: filename
         integer(kind=4)                                           :: x
 
         ! declaring grid dimensions
@@ -319,7 +320,7 @@ module ground_cp
         call write_formatted('COMPUTING FIELD','yellow')
 
         ! open file to save data 
-        open(unit=1, file='FLOWfieldGE.dat', status='replace')
+        open(unit=1, file=filename, status='replace')
         
         ! allocating velocity vector --> in this case the alpha angle should be 0
         ! --> description of the vel variable is made to render it more flexible for future changes 
@@ -401,7 +402,7 @@ module ground_cp
         end do
         
         call write_formatted('[','normal','OK','green','] -- velocity and pressure field computed                ','normal', &
-                              '--> FLOWfieldGE.dat','normal') 
+                              '--> ','normal',filename,'normal') 
         
         ! plot data 
         call system('gnuplot -p PRESSUREfieldGE.plt')

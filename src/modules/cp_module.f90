@@ -22,6 +22,9 @@ module cp
         integer(kind=4)                                     :: num, i 
         integer(kind=4),intent(out)                         :: MEANsize, PANELsize
         real(kind=8)                                        :: panel_tangent_module
+        character(len=30)                                   :: filename1
+        character(len=30)                                   :: filename2
+        character(len=30)                                   :: filename3
 
         print*, 'type airfoil name to analize -- NACA-4digits'
         read*, filename
@@ -141,7 +144,11 @@ module cp
         end do
         
         !!!!!!!!!!!!!!!!!!!!!!!!!!!! GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        call GNUplot_print(airfoil,PANEL_array,MEAN_array)
+        ! already exists filename variable
+        filename1  = 'GNUplot_coord_data.dat'
+        filename2 = 'GNUplot_mean_data.dat'
+        filename3 = 'GNUplot_tg_norm.dat'
+        call GNUplot_print(airfoil,PANEL_array,MEAN_array,filename1,filename2,filename3)
         !!!!!!!!!!!!!!!!!!!!!!!!!!!! GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         write(str_num,*) num
@@ -584,7 +591,7 @@ module cp
 
     end subroutine CLalpha
         
-    subroutine compute_field(PANEL_array,PANELsize,solution,V,P0,rho,alpha)
+    subroutine compute_field(PANEL_array,PANELsize,solution,V,P0,rho,alpha,filename)
     ! this subroutine computes the velocity field of the system after have computed the values of every singularity [gamma; sigma(i)]     
         use PANEL_object
         use math_module
@@ -616,6 +623,7 @@ module cp
         type(panel)                                    :: dummy_panel
         type(panel),dimension(PANELsize),intent(in)    :: PANEL_array
         type(array_type),dimension(:,:),allocatable    :: grid
+        character(len=30),intent(in)                   :: filename
         integer(kind=4)                                :: x
 
         ! # of rows and columns 
@@ -661,7 +669,7 @@ module cp
         ! -- using integral, computeCOEFF to compute velocity
         
         ! open file to save dat
-        open(unit=1, file='FLOWfield.dat', status='replace')
+        open(unit=1, file= filename, status='replace')
         
         ! compute velocity process
         do i=1,nrows

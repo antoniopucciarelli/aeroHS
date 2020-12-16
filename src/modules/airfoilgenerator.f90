@@ -7,7 +7,8 @@ module airfoilgenerator
 
     contains
 
-        subroutine make_airfoil(PANELsize,MEANLINEarray,PANELarray,airfoil,alpha)
+        subroutine make_airfoil(PANELsize,MEANLINEarray,PANELarray,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, & 
+                                GNUplot_tg_norm)
 
         ! module declaration
         use AIRFOIL_object
@@ -20,25 +21,28 @@ module airfoilgenerator
         implicit none
 
         ! variable declaration
-        type(NACA_airfoil),intent(out)                      :: airfoil       ! airfoil object
-        type(panel),allocatable,dimension(:),intent(out)    :: PANELarray    ! panel object array
-        type(MEANline),allocatable,dimension(:),intent(out) :: MEANLINEarray ! mean line point object array
-        real(kind=8),allocatable,dimension(:)               :: coordyUP      ! x-coords array -> describes the UPPER airfoil geometry
-        real(kind=8),allocatable,dimension(:)               :: coordxUP      ! y-coords array -> describes the UPPER airfoil geometry
-        real(kind=8),allocatable,dimension(:)               :: coordyDW      ! x-coords array -> describes the LOWER airfoil geometry
-        real(kind=8),allocatable,dimension(:)               :: coordxDW      ! y-coords array -> describes the LOWER airfoil geometry
-        integer(kind=4)                                     :: counter = 1   ! # of airfoil studied counter
-        integer(kind=4)                                     :: x = 1         ! checking variable in while loop
-        integer(kind=4)                                     :: dim           ! auxiliary variable -> # of discretisation points for the airfoil
-        integer(kind=4)                                     :: k             ! auxiliary variable
-        integer(kind=4)                                     :: j             ! auxiliary variable
-        integer(kind=4)                                     :: i             ! auxiliary variable
-        real(kind=8)                                        :: airfoil_data1 ! easy-access variable -> 1st number of airfoil%data
-        real(kind=8)                                        :: airfoil_data2 ! easy-access variable -> 2nd number of arifoil%data
-        real(kind=8),intent(in)                             :: alpha         ! AOA 
-        integer(kind=4),intent(out)                         :: PANELsize     ! number of discretization panels
-        real(kind=8),dimension(2)                           :: transl        ! translation vector        
-
+        type(NACA_airfoil),intent(out)                      :: airfoil            ! airfoil object
+        type(panel),allocatable,dimension(:),intent(out)    :: PANELarray         ! panel object array
+        type(MEANline),allocatable,dimension(:),intent(out) :: MEANLINEarray      ! mean line point object array
+        real(kind=8),allocatable,dimension(:)               :: coordyUP           ! x-coords array -> describes the UPPER airfoil geometry
+        real(kind=8),allocatable,dimension(:)               :: coordxUP           ! y-coords array -> describes the UPPER airfoil geometry
+        real(kind=8),allocatable,dimension(:)               :: coordyDW           ! x-coords array -> describes the LOWER airfoil geometry
+        real(kind=8),allocatable,dimension(:)               :: coordxDW           ! y-coords array -> describes the LOWER airfoil geometry
+        integer(kind=4)                                     :: counter = 1        ! # of airfoil studied counter
+        integer(kind=4)                                     :: x = 1              ! checking variable in while loop
+        integer(kind=4)                                     :: dim                ! auxiliary variable -> # of discretisation points for the airfoil
+        integer(kind=4)                                     :: k                  ! auxiliary variable
+        integer(kind=4)                                     :: j                  ! auxiliary variable
+        integer(kind=4)                                     :: i                  ! auxiliary variable
+        real(kind=8)                                        :: airfoil_data1      ! easy-access variable -> 1st number of airfoil%data
+        real(kind=8)                                        :: airfoil_data2      ! easy-access variable -> 2nd number of arifoil%data
+        real(kind=8),intent(in)                             :: alpha              ! AOA 
+        integer(kind=4),intent(out)                         :: PANELsize          ! number of discretization panels
+        real(kind=8),dimension(2)                           :: transl             ! translation vector        
+        character(len=30)                                   :: GNUplot_coord_data ! filename of the airfoil coords data container 
+        character(len=30)                                   :: GNUplot_mean_data  ! filename of the airfoil mean data container
+        character(len=30)                                   :: GNUplot_tg_norm    ! filename of the airfoil coords, tangent and normal data container
+        
         ! this program allows you to create multiple NACA**** profile each run 
 
         call airfoil%set_AIRFOILname() ! setting airfoil name
@@ -223,7 +227,7 @@ module airfoilgenerator
                 ! call ask_and_save(airfoil,PANELarray,MEANLINEarray)
 
                 ! printing data
-                 call GNUplot_print(airfoil,PANELarray,MEANLINEarray)
+                call GNUplot_print(airfoil,PANELarray,MEANLINEarray,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm) 
             !!!!!!!!!!!!!!!!!!!!!!! SAVING & GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!
             
             ! data deallocation procedure
@@ -238,7 +242,8 @@ module airfoilgenerator
 
     end subroutine make_airfoil
 
-    subroutine ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection)
+    subroutine ask_geometry(PANELsize,PANEL_array,MEAN_array,airfoil,alpha,selection,GNUplot_coord_data,GNUplot_mean_data, & 
+                            GNUplot_tg_norm)
     ! this subroutine allows to ask the user the action to take
         use cp 
         use AIRFOIL_object
@@ -257,7 +262,10 @@ module airfoilgenerator
         integer(kind=4)                                     :: x
         integer(kind=4),intent(in)                          :: selection
         integer(kind=4)                                     :: selection_type 
-        real(kind=8),intent(in)                             :: alpha 
+        real(kind=8),intent(in)                             :: alpha
+        character(len=30)                                   :: GNUplot_coord_data ! filename of the airfoil coords data container 
+        character(len=30)                                   :: GNUplot_mean_data  ! filename of the airfoil mean data container
+        character(len=30)                                   :: GNUplot_tg_norm    ! filename of the airfoil coords, tangent and normal data container
         
         x = 1
 
@@ -269,7 +277,8 @@ module airfoilgenerator
                 print*, 'creaing a new 4 digits airfoil'
 
                 ! making new geometry from scratch
-                call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha)
+                call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, &
+                                  GNUplot_tg_norm)
                 
                 x = 0
 
@@ -289,7 +298,8 @@ module airfoilgenerator
 
                     case(2)
                         ! making new geometry form scratch 
-                        call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha)
+                        call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, & 
+                                          GNUplot_tg_norm)
 
                         x = 0 
 

@@ -132,7 +132,7 @@ module discretization_module
 
         end subroutine ask_and_save
 
-        subroutine GNUplot_print(airfoil,PANELarray,MEANLINEarray)
+        subroutine GNUplot_print(airfoil,PANELarray,MEANLINEarray,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm)
             use AIRFOIL_object
             use MEANline_object
             use PANEL_object
@@ -141,19 +141,23 @@ module discretization_module
             class(MEANline),intent(in),dimension(:) :: MEANLINEarray
             class(panel),intent(in),dimension(:)    :: PANELarray
             character(len=1)                        :: resp
-
+            character(len=30)                       :: GNUplot_coord_data
+            character(len=30)                       :: GNUplot_mean_data
+            character(len=30)                       :: GNUplot_tg_norm
+            
             ! printing option via gnuplot
             print*, 'do you want to print ',airfoil%get_airfoilname(),' ? [Y\n]'
             read*, resp
             if(resp=='Y' .or. resp=='y')then
-                call GNUplot_saving(PANELarray,MEANLINEarray,airfoil%get_npoints())
+                call GNUplot_saving(PANELarray,MEANLINEarray,airfoil%get_npoints(), & 
+                                    GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm)
                 call system('gnuplot -p AIRFOILgnuplot.plt')
                 call system('gnuplot -p AIRFOILelement_plot.plt')
             end if
             
         end subroutine GNUplot_print
 
-        subroutine GNUplot_saving(PANELarray,MEANLINEarray,dim)
+        subroutine GNUplot_saving(PANELarray,MEANLINEarray,dim,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm)
             use MEANline_object
             use PANEL_object
             implicit none
@@ -161,10 +165,13 @@ module discretization_module
             class(panel),intent(in),dimension(:)    :: PANELarray
             integer(kind=4),intent(in)              :: dim
             integer(kind=4)                         :: k
+            character(len=30)                       :: GNUplot_coord_data
+            character(len=30)                       :: GNUplot_mean_data
+            character(len=30)                       :: GNUplot_tg_norm
         
-            open(unit=1, file='GNUplot_coord_data.dat', status='replace')
-            open(unit=2, file='GNUplot_mean_data.dat',  status='replace')
-            open(unit=3, file='GNUplot_tg_norm.dat',    status='replace')
+            open(unit=1, file=GNUplot_coord_data, status='replace')
+            open(unit=2, file=GNUplot_mean_data,  status='replace')
+            open(unit=3, file=GNUplot_tg_norm,    status='replace')
 
             do k=1,dim
                 write(1,'(2F8.4)') MEANLINEarray(k)%get_coords()
