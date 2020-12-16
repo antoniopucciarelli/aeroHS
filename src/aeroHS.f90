@@ -235,6 +235,9 @@ program aeroHS
             call generate_airfoils(selection,selection_type,alpha1,alpha2,PANELsize1,PANELsize2,PANEL_array1,PANEL_array2, &
                                    MEAN_array1,MEAN_array2)
             
+            ! plotting generated airfoils             
+            call plot_airfoils()
+
             ! computing system matrix 
             call compute_multi_matrix(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,matrix)
   

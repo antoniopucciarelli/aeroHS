@@ -9,6 +9,7 @@ module multi_cp
         use AIRFOIL_object
         use airfoilgenerator
         use ask_module 
+        use discretization_module 
 
         implicit none 
 
@@ -42,12 +43,18 @@ module multi_cp
         filename1 = 'GNUplot_mean_data1.dat'
         filename2 = 'GNUplot_tg_norm1.dat'
         call make_airfoil(PANELsize1,MEANLINEarray1,PANEL_array1,airfoil1,alpha1,filename,filename1,filename2)
-        
+            
+        ! saving 1st airfoil data
+        call GNUplot_saving(PANEL_array1,MEANLINEarray1,airfoil1%get_npoints(),filename,filename1,filename2)
+
         ! setting second airfoil 
         filename  = 'GNUplot_coord_data2.dat'
         filename1 = 'GNUplot_mean_data2.dat'
         filename2 = 'GNUplot_tg_norm2.dat'
         call make_airfoil(PANELsize2,MEANLINEarray2,PANEL_array2,airfoil2,alpha2,filename,filename1,filename2) 
+            
+        ! savin 2nd airfoil data
+        call GNUplot_saving(PANEL_array2,MEANLINEarray2,airfoil2%get_npoints(),filename,filename1,filename2)
 
     end subroutine generate_airfoils 
     
@@ -152,9 +159,6 @@ module multi_cp
         vel(1) = V*cos(alpha)
         vel(2) = V*sin(alpha)
             
-        ! vector variable allocation 
-        allocate(vector(PANELsize1+PANELsize2+2))
-        
         ! velocity on 1st airfoil --> no penetration conditions 
         do i=1,PANELsize1 
             vector(i) = dot_product(PANEL_array1(i)%normal,vel)

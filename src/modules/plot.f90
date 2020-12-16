@@ -116,4 +116,15 @@ module plot
 
         call write_formatted('[','normal','OK','green','] -- velocity field plotted ','normal')
     end subroutine plot_vel_field 
+        
+    subroutine plot_airfoils()
+        use FOUL 
+        implicit none 
+
+        call system('gnuplot -p PLOTairfoils.plt')
+
+        call write_formatted('[','normal','OK','green','] -- velocity field plotted ','normal')
+    
+    end subroutine plot_airfoils
+
 end module plot 

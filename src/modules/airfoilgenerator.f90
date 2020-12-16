@@ -39,9 +39,9 @@ module airfoilgenerator
         real(kind=8),intent(in)                             :: alpha              ! AOA 
         integer(kind=4),intent(out)                         :: PANELsize          ! number of discretization panels
         real(kind=8),dimension(2)                           :: transl             ! translation vector        
-        character(len=30)                                   :: GNUplot_coord_data ! filename of the airfoil coords data container 
-        character(len=30)                                   :: GNUplot_mean_data  ! filename of the airfoil mean data container
-        character(len=30)                                   :: GNUplot_tg_norm    ! filename of the airfoil coords, tangent and normal data container
+        character(len=30),intent(in)                        :: GNUplot_coord_data ! filename of the airfoil coords data container 
+        character(len=30),intent(in)                        :: GNUplot_mean_data  ! filename of the airfoil mean data container
+        character(len=30),intent(in)                        :: GNUplot_tg_norm    ! filename of the airfoil coords, tangent and normal data container
         
         ! this program allows you to create multiple NACA**** profile each run 
 

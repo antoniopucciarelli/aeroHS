@@ -141,9 +141,9 @@ module discretization_module
             class(MEANline),intent(in),dimension(:) :: MEANLINEarray
             class(panel),intent(in),dimension(:)    :: PANELarray
             character(len=1)                        :: resp
-            character(len=30)                       :: GNUplot_coord_data
-            character(len=30)                       :: GNUplot_mean_data
-            character(len=30)                       :: GNUplot_tg_norm
+            character(len=30),intent(in)            :: GNUplot_coord_data
+            character(len=30),intent(in)            :: GNUplot_mean_data
+            character(len=30),intent(in)            :: GNUplot_tg_norm
             
             ! printing option via gnuplot
             print*, 'do you want to print ',airfoil%get_airfoilname(),' ? [Y\n]'
@@ -154,7 +154,7 @@ module discretization_module
                 call system('gnuplot -p AIRFOILgnuplot.plt')
                 call system('gnuplot -p AIRFOILelement_plot.plt')
             end if
-            
+
         end subroutine GNUplot_print
 
         subroutine GNUplot_saving(PANELarray,MEANLINEarray,dim,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm)
@@ -186,11 +186,11 @@ module discretization_module
 
             do k=1,2*dim-2
                 write(3,'(6F8.4)') PANELarray(k)%get_midpointx(), &
-                                PANELarray(k)%get_midpointy(), &
-                                PANELarray(k)%get_tangentx() , &
-                                PANELarray(k)%get_tangenty() , & 
-                                PANELarray(k)%get_normalx()  , &
-                                PANELarray(k)%get_normaly()
+                                   PANELarray(k)%get_midpointy(), &
+                                   PANELarray(k)%get_tangentx() , &
+                                   PANELarray(k)%get_tangenty() , & 
+                                   PANELarray(k)%get_normalx()  , &
+                                   PANELarray(k)%get_normaly()
             end do
 
             close(1)
@@ -226,8 +226,8 @@ module discretization_module
             open(unit=1, file='UP.dat', status='replace')
             open(unit=2, file='DOWN.dat', status='replace')
 
-            do j=1,dim
                 write(1,'(2F8.4)') vec1(j), vec2(j)
+            do j=1,dim
             end do
             do j=1,dim
                 write(1,'(2F8.4)') vec3(j), vec4(j)
