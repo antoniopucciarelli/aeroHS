@@ -10,6 +10,7 @@ module multi_cp
         use airfoilgenerator
         use ask_module 
         use discretization_module 
+        use FOUL 
 
         implicit none 
 
@@ -34,14 +35,16 @@ module multi_cp
         character(len=30)                       :: filename 
         character(len=30)                       :: filename1
         character(len=30)                       :: filename2
+        character(len=1)                        :: answer
 
         ! setting properties 
         call setting_properties(P0,V,rho,alpha1,alpha2,start_angle,end_angle,dim,selection,selection_type) 
-
+        
         ! setting first airfoil 
         filename  = 'GNUplot_coord_data1.dat'
         filename1 = 'GNUplot_mean_data1.dat'
         filename2 = 'GNUplot_tg_norm1.dat'
+        call write_formatted('FIRST AIRFOIL','yellow')
         call make_airfoil(PANELsize1,MEANLINEarray1,PANEL_array1,airfoil1,alpha1,filename,filename1,filename2)
             
         ! saving 1st airfoil data
@@ -51,8 +54,17 @@ module multi_cp
         filename  = 'GNUplot_coord_data2.dat'
         filename1 = 'GNUplot_mean_data2.dat'
         filename2 = 'GNUplot_tg_norm2.dat'
+        call write_formatted('SECOND AIRFOIL','yellow')
         call make_airfoil(PANELsize2,MEANLINEarray2,PANEL_array2,airfoil2,alpha2,filename,filename1,filename2) 
-            
+        
+        ! asking to invert airfoil --> useful for ground effect study
+        print*, 'do you want to invert the 2nd airfoil coords? [Y\n]'
+        read*, answer
+
+        if(answer == 'Y' .or. answer == 'y')then 
+            call invert(PANELsize2,PANEL_array2)
+        end if 
+
         ! savin 2nd airfoil data
         call GNUplot_saving(PANEL_array2,MEANLINEarray2,airfoil2%get_npoints(),filename,filename1,filename2)
 
@@ -660,5 +672,50 @@ module multi_cp
         call system('gnuplot -p CP_plot_MULTI.plt')
 
     end subroutine compute_MULTIairfoilFIELD
+        
+    subroutine invert(PANELsize,PANEL_array)
+        use PANEL_object 
+    
+        implicit none 
+        
+        integer(kind=4),intent(in)                     :: PANELsize
+        integer(kind=4)                                :: i 
+        type(panel),dimension(PANELsize),intent(inout) :: PANEL_array
+        type(panel),dimension(PANELsize)               :: PANEL_array_temp 
+        real(kind=8),dimension(2)                      :: temp 
+
+        do i=1,PANELsize
+            
+            PANEL_array(i)%coords1(2)  = - PANEL_array(i)%coords1(2)
+            PANEL_array(i)%coords2(2)  = - PANEL_array(i)%coords2(2)
+            PANEL_array(i)%midpoint(2) = - PANEL_array(i)%midpoint(2) 
+            
+            ! swapping panel ID
+            PANEL_array(i)%id = PANELsize - (i-1) 
+
+            ! swapping coords to match the requirements
+            temp                   = PANEL_array(i)%coords1 
+            PANEL_array(i)%coords1 = PANEL_array(i)%coords2
+            PANEL_array(i)%coords2 = temp
+
+            call PANEL_array(i)%set_angle() 
+
+            if(PANEL_array(i)%POS == 'UP')then 
+                PANEL_array(i)%POS = 'DW'
+            else 
+                PANEL_array(i)%POS = 'UP'
+            end if
+            
+            call PANEL_array(i)%compute_tangent_and_normal() 
+
+            call PANEL_array(i)%compute_ROT()
+
+            PANEL_array_temp(PANELsize-(i-1)) = PANEL_array(i) 
+
+        end do  
+
+        PANEL_array = PANEL_array_temp
+
+    end subroutine invert  
 
 end module multi_cp
