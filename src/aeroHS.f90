@@ -242,8 +242,18 @@ program aeroHS
             call compute_multi_matrix(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,matrix)
   
             ! computing vector matrix 
+            V     = 1.0 
+            alpha = 0.0
+            rho   = 1.0
+            P0    = 1.0
             call compute_multi_vector(vector,PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,alpha,V)
             
+            ! saving matrix, vectors
+            filename = 'matrix_data.dat' 
+            call save_matrix(matrix,PANELsize1+PANELsize2+2,filename) 
+            filename = 'vector_data.dat'
+            call save_vector(vector,PANELsize1+PANELsize2+2,filename)
+
             ! computing and testing solution
             call solvemulti(PANELsize1,PANELsize2,matrix,vector,solution)
              

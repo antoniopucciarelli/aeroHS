@@ -64,14 +64,16 @@ module multi_cp
         
         implicit none 
         
-        integer(kind=4),intent(in)                   :: PANELsize1 
-        integer(kind=4),intent(in)                   :: PANELsize2 
-        type(panel),dimension(PANELsize1),intent(in) :: PANEL_array1 
-        type(panel),dimension(PANELsize2),intent(in) :: PANEL_array2
-        real(kind=8),dimension(:,:),allocatable      :: matrix 
-        real(kind=8),dimension(2)                    :: normal_ith 
-        real(kind=8)                                 :: vortex_value
-        integer(kind=4)                              :: i, j
+        integer(kind=4),intent(in)              :: PANELsize1 
+        integer(kind=4),intent(in)              :: PANELsize2 
+        type(panel),dimension(PANELsize1)       :: PANEL_array1 
+        type(panel),dimension(PANELsize2)       :: PANEL_array2
+        real(kind=8),dimension(:,:),allocatable :: matrix 
+        real(kind=8),dimension(2)               :: normal_ith 
+        real(kind=8),dimension(2)               :: tangent_first
+        real(kind=8),dimension(2)               :: tangent_last
+        real(kind=8)                            :: vortex_value
+        integer(kind=4)                         :: i, j
         
         ! matrix allocation 
         allocate(matrix(PANELsize1+PANELsize2+2,PANELsize1+PANELsize2+2))
@@ -83,10 +85,10 @@ module multi_cp
             vortex_value = 0.0
 
             do j=1,PANELsize1  
-                matrix(i,j) = dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array1(j),'source')) 
+                matrix(i,j)  = dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array1(j),'source')) 
                 vortex_value = vortex_value + dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array1(j),'vortex'))
             end do 
-            
+                       
             matrix(i,PANELsize1+1) = vortex_value 
 
         end do 
@@ -98,14 +100,44 @@ module multi_cp
             vortex_value = 0.0
             
             do j=1,PANELsize2 
-                matrix(i,PANELsize1+1) = dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array2(j),'source'))
-                vortex_value           = vortex_value + dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array2(j),'vortex')) 
+                matrix(i,PANELsize1+1+j) = dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array2(j),'source'))
+                vortex_value             = vortex_value + dot_product(normal_ith,integral(PANEL_array1(i),PANEL_array2(j),'vortex')) 
             end do 
             
             matrix(i,PANELsize1+PANELsize2+2) = vortex_value
 
         end do 
+
+        ! KUTTA condition on 1st airfoil 
+        ! tangent declaration for 1st airfoil
+        tangent_first = PANEL_array1(1)%tangent
+        tangent_last  = PANEL_array1(PANELsize1)%tangent
         
+        ! 1st airfoil on itself
+        vortex_value = 0.0
+
+        do j=1,PANELsize1
+            matrix(PANELsize1+1,j) = dot_product(tangent_first,integral(PANEL_array1(1),PANEL_array1(j),'source')) + & 
+                                     dot_product(tangent_last,integral(PANEL_array1(PANELsize1),PANEL_array1(j),'source'))
+            vortex_value = vortex_value + dot_product(tangent_first,integral(PANEL_array1(1),PANEL_array1(j),'vortex')) + &
+                           dot_product(tangent_last,integral(PANEL_array1(PANELsize1),PANEL_array1(j),'vortex'))                
+        end do
+
+        matrix(PANELsize1+1,PANELsize1+1) = vortex_value
+
+        ! 2nd airfoil on 1st airfoil
+        vortex_value = 0.0
+
+        do j=1,PANELsize2
+            matrix(PANELsize1+1,PANELsize1+1+j) = & 
+                                     dot_product(tangent_first,integral(PANEL_array1(1),PANEL_array2(j),'source')) + & 
+                                     dot_product(tangent_last,integral(PANEL_array1(PANELsize1),PANEL_array2(j),'source'))
+            vortex_value = vortex_value + dot_product(tangent_first,integral(PANEL_array1(1),PANEL_array2(j),'vortex')) + &
+                           dot_product(tangent_last,integral(PANEL_array1(PANELsize1),PANEL_array2(j),'vortex'))                
+        end do
+
+        matrix(PANELsize1+1,PANELsize1+PANELsize2+2) = vortex_value
+
         ! computing 2nd airfoil induced by the 1st airfoil
         do i=1,PANELsize2 
             
@@ -135,6 +167,37 @@ module multi_cp
             matrix(PANELsize1+1+i,PANELsize1+1+j) = vortex_value 
 
         end do 
+
+        ! KUTTA condition on 2nd airfoil 
+        ! tangent declaration for 2nd airfoil
+        tangent_first = PANEL_array2(1)%tangent
+        tangent_last  = PANEL_array2(PANELsize2)%tangent
+        
+        ! 1st airfoil on 2nd airfoil 
+        vortex_value = 0.0
+
+        do j=1,PANELsize1
+            matrix(PANELsize1+PANELsize2+2,j) = &  
+                                       dot_product(tangent_first,integral(PANEL_array2(1),PANEL_array1(j),'source')) + & 
+                                       dot_product(tangent_last,integral(PANEL_array2(PANELsize2),PANEL_array1(j),'source'))
+            vortex_value = vortex_value + dot_product(tangent_first,integral(PANEL_array2(1),PANEL_array1(j),'vortex')) + &
+                           dot_product(tangent_last,integral(PANEL_array2(PANELsize2),PANEL_array1(j),'vortex'))                
+        end do
+
+        matrix(PANELsize1+PANELsize2+2,PANELsize1+1) = vortex_value
+
+        ! 2nd airfoil itself                
+        vortex_value = 0.0
+
+        do j=1,PANELsize2
+            matrix(PANELsize1+PANELsize2+2,PANELsize1+1+j) = & 
+                                     dot_product(tangent_first,integral(PANEL_array2(1),PANEL_array2(j),'source')) + & 
+                                     dot_product(tangent_last,integral(PANEL_array2(PANELsize2),PANEL_array2(j),'source'))
+            vortex_value = vortex_value + dot_product(tangent_first,integral(PANEL_array2(1),PANEL_array2(j),'vortex')) + &
+                           dot_product(tangent_last,integral(PANEL_array2(PANELsize2),PANEL_array2(j),'vortex'))                
+        end do
+
+        matrix(PANELsize1+PANELsize2+2,PANELsize1+PANELsize2+2) = vortex_value
     
     end subroutine compute_multi_matrix
 
@@ -158,7 +221,7 @@ module multi_cp
         ! determining vec --> more general description 
         vel(1) = V*cos(alpha)
         vel(2) = V*sin(alpha)
-            
+
         ! velocity on 1st airfoil --> no penetration conditions 
         do i=1,PANELsize1 
             vector(i) = dot_product(PANEL_array1(i)%normal,vel)
@@ -173,7 +236,7 @@ module multi_cp
         end do 
 
         ! KUTTA condition on 2nd airfoil 
-        vector(PANELsize1+PANELsize2+2) =dot_product(PANEL_array2(1)%tangent,vel) + & 
+        vector(PANELsize1+PANELsize2+2) = dot_product(PANEL_array2(1)%tangent,vel) + & 
                                           dot_product(PANEL_array2(PANELsize2)%tangent,vel)
 
     end subroutine compute_multi_vector 
@@ -355,7 +418,7 @@ module multi_cp
                 
                 ! computing the pressure with BERNOULLI's theorem 
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
-                
+!                print*, pressure                
 !                if(x == 1)then 
 !                    velocity = (/0.0, 0.0/)
 !                    norm_vel = 0
@@ -371,10 +434,11 @@ module multi_cp
         call write_formatted('[','normal','OK','green','] -- velocity and pressure field computed                ','normal', &
                               '--> ','normal',filename,'normal') 
         
+        close(1)
+
         ! plot data 
         call system('gnuplot -p PRESSUREfieldMULTI.plt')
 
-        close(1)
         deallocate(grid)
     end subroutine compute_multi_field
 
