@@ -408,6 +408,13 @@ module ground_cp
         call system('gnuplot -p PRESSUREfieldGE.plt')
 
         close(1)
+        
+        ! deallocation process         
+        do i=1,nrows
+            do j=1,ncols
+                deallocate(grid(i,j)%coords)
+            end do
+        end do
         deallocate(grid)
     end subroutine computeGROUNDfield
     

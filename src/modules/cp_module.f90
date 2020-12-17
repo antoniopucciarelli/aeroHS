@@ -741,6 +741,12 @@ module cp
         end do
 
         close(1)
+        ! deallocation process
+        do i=1,nrows
+            do j=1,ncols
+                deallocate(grid(i,j)%coords)
+            end do 
+        end do 
         deallocate(grid)
     end subroutine compute_field
 

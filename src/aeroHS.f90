@@ -35,7 +35,9 @@ program aeroHS
     real(kind=8),dimension(:),allocatable   :: solution
     real(kind=8),dimension(:),allocatable   :: Vvec
     real(kind=8),dimension(:),allocatable   :: pressure
-    real(kind=8),dimension(:),allocatable   :: cp_vec 
+    real(kind=8),dimension(:),allocatable   :: cp_vec
+    real(kind=8),dimension(:),allocatable   :: cp_vec1
+    real(kind=8),dimension(:),allocatable   :: cp_vec2 
     real(kind=8),dimension(:,:),allocatable :: cl_alpha
     integer(kind=4)                         :: PANELsize      = 0
     integer(kind=4)                         :: PANELsize1     = 0
@@ -113,7 +115,7 @@ program aeroHS
                 
                 ! compute CL value 
                 CL = compute_cl(cp_vec,PANEL_array,PANELsize)
-                print*, 'CL value = ', CL
+                print*, 'CL value                  = ', CL
 
                 ! asking to save matrices, known vector and solution
                 ! call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
@@ -236,7 +238,7 @@ program aeroHS
                                    MEAN_array1,MEAN_array2)
             
             ! plotting generated airfoils             
-            call plot_airfoils()
+            ! call plot_airfoils()
 
             ! computing system matrix 
             call compute_multi_matrix(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,matrix)
@@ -256,12 +258,17 @@ program aeroHS
 
             ! computing and testing solution
             call solvemulti(PANELsize1,PANELsize2,matrix,vector,solution)
+            
+            ! computing Cp vs X
+            allocate(cp_vec1(PANELsize1))
+            allocate(cp_vec2(PANELsize2))
+            call compute_MULTIairfoilFIELD(solution,PANEL_array1,PANEL_array2,PANELsize1,PANELsize2,cp_vec1,cp_vec2,P0,alpha,V,rho)
              
             ! computing velocity and pressure fields
             ! plotting pressure field 
             filename = 'FLOWfieldMULTI.dat'
             call compute_multi_field(solution,PANEL_array1,PANEL_array2,PANELsize1,PANELsize2,P0,alpha,V,rho,filename) 
-            
+
             ! deallocation process
             deallocate(matrix)
             deallocate(vector)
@@ -319,7 +326,7 @@ program aeroHS
                         
             ! compute CL value 
             CL = compute_cl(cp_vec,PANEL_array,PANELsize)
-            print*, 'CL value = ', CL    
+            print*, 'CL value                      = ', CL    
 
             ! asking user to continue
             call ask_to_continue_cp(i)

@@ -238,6 +238,8 @@ module multi_cp
         ! KUTTA condition on 2nd airfoil 
         vector(PANELsize1+PANELsize2+2) = dot_product(PANEL_array2(1)%tangent,vel) + & 
                                           dot_product(PANEL_array2(PANELsize2)%tangent,vel)
+        
+        vector = - vector
 
     end subroutine compute_multi_vector 
 
@@ -305,11 +307,11 @@ module multi_cp
         type(array_type),dimension(:,:),allocatable                :: grid
         integer(kind=4)                                            :: nrows, ncols
         character(len=30),intent(in)                               :: filename
-        integer(kind=4)                                            :: x
+        integer(kind=4)                                            :: x1, x2
         
         ! declaring grid dimensions
-        nrows = 100
-        ncols = 300
+        nrows = 150
+        ncols = 350
 
         ! grid allocation process in memory
         allocate(grid(nrows,ncols))
@@ -369,31 +371,58 @@ module multi_cp
                 ! described by the dummy_panel midpoint 
                 dummy_panel%midpoint = grid(i,j)%coords
                 
-!                if(grid(i,j)%coords(1) >= PANEL_array(PANELsize/2)%coords1(1) .and. & 
-!                   grid(i,j)%coords(1) <= PANEL_array(1)%coords1(1))then 
-!                    
-!                    x = 0
-!                    k = 1
-!
-!                    do while(x == 0 .and. k<=PANELsize/2)
-!                             
-!                        if(grid(i,j)%coords(2) >= PANEL_array(PANELsize/2-k+1)%midpoint(2) .and. &
-!                           grid(i,j)%coords(2) <= PANEL_array(PANELsize/2+k)%midpoint(2))then
-!                            
-!                           if(grid(i,j)%coords(1) <= PANEL_array(PANELsize/2+k)%coords2(1) .and. & 
-!                              grid(i,j)%coords(1) >= PANEL_array(PANELsize/2+k-1)%coords1(1))then
-!                                                                  
-!                                x = 1                             
-!                                                                  
-!                           end if                                 
-!                                                                  
-!                        end if
-!                        
-!                        k = k + 1
-!
-!                    end do
-!                end if
+                ! checking internal airfoil area --> 1st arifoil                 
+                if(grid(i,j)%coords(1) >= PANEL_array1(PANELsize1/2)%coords1(1)-0.001 .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array1(1)%coords1(1)+0.001)then 
+                    
+                    x1 = 0
+                    k = 1
+
+                    do while(x1 == 0 .and. k<=PANELsize1/2)
+                             
+                        if(grid(i,j)%coords(2) >= PANEL_array1(PANELsize1/2-k+1)%midpoint(2)-0.001 .and. &
+                           grid(i,j)%coords(2) <= PANEL_array1(PANELsize1/2+k)%midpoint(2)+0.001)then
+                            
+                           if(grid(i,j)%coords(1) <= PANEL_array1(PANELsize1/2+k)%coords2(1)+0.001 .and. & 
+                              grid(i,j)%coords(1) >= PANEL_array1(PANELsize1/2+k-1)%coords1(1)-0.001)then
+                                                                  
+                                x1 = 1                             
+                                                                  
+                           end if                                 
+                                                                  
+                        end if
+                        
+                        k = k + 1
+
+                    end do
+                end if
                 
+                ! checking internal airfoil area --> 2nd airfoil
+                if(grid(i,j)%coords(1) >= PANEL_array2(PANELsize2/2)%coords1(1) .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array2(1)%coords1(1))then 
+                    
+                    x2 = 0
+                    k = 1
+
+                    do while(x2 == 0 .and. k<=PANELsize2/2)
+                             
+                        if(grid(i,j)%coords(2) >= PANEL_array2(PANELsize2/2-k+1)%midpoint(2) .and. &
+                           grid(i,j)%coords(2) <= PANEL_array2(PANELsize2/2+k)%midpoint(2))then
+                            
+                           if(grid(i,j)%coords(1) <= PANEL_array2(PANELsize2/2+k)%coords2(1) .and. & 
+                              grid(i,j)%coords(1) >= PANEL_array2(PANELsize2/2+k-1)%coords1(1))then
+                                                                  
+                                x2 = 1                             
+                                                                  
+                           end if                                 
+                                                                  
+                        end if
+                        
+                        k = k + 1
+
+                    end do
+                end if
+               
                 ! computing induction by the 1st airfoil panels 
                 ! source distribution induction 
                 ! vortex distribution induction 
@@ -416,14 +445,25 @@ module multi_cp
                 ! computing the norm of velocity 
                 norm_vel = norm(velocity)
                 
+                if(grid(i,j)%coords(1) >= PANEL_array1(PANELsize1/2)%coords1(1)-0.001 .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array1(1)%coords1(1)+0.001)then 
+                    if(x1 == 1)then 
+                        velocity = (/0.0, 0.0/)
+                        norm_vel = 0
+                    end if
+                end if
+
+                if(grid(i,j)%coords(1) >= PANEL_array2(PANELsize2/2)%coords1(1) .and. & 
+                   grid(i,j)%coords(1) <= PANEL_array2(1)%coords1(1))then 
+                    if(x2 == 1)then 
+                        velocity = (/0.0, 0.0/)
+                        norm_vel = 0
+                    end if
+                end if
+
                 ! computing the pressure with BERNOULLI's theorem 
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
-!                print*, pressure                
-!                if(x == 1)then 
-!                    velocity = (/0.0, 0.0/)
-!                    norm_vel = 0
-!                end if
-
+                
                 ! writing data in file 
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
                            velocity(1), velocity(2), norm_vel, & 
@@ -438,8 +478,187 @@ module multi_cp
 
         ! plot data 
         call system('gnuplot -p PRESSUREfieldMULTI.plt')
-
+        
+        ! grid deallocation
+        do i=1,nrows
+            do j=1,ncols
+                deallocate(grid(i,j)%coords)
+            end do
+        end do 
         deallocate(grid)
     end subroutine compute_multi_field
+
+    subroutine compute_MULTIairfoilFIELD(solution,PANEL_array1,PANEL_array2,PANELsize1,PANELsize2,cp_vec1,cp_vec2,P0,alpha,V,rho)  
+        use PANEL_object 
+        use math_module
+        use FOUL
+        use cp 
+        
+        implicit none 
+        
+        integer(kind=4),intent(in)                                  :: PANELsize1
+        integer(kind=4),intent(in)                                  :: PANELsize2 
+        type(panel),dimension(PANELsize1),intent(in)                :: PANEL_array1
+        type(panel),dimension(PANELsize2),intent(in)                :: PANEL_array2
+        real(kind=8),dimension(PANELsize1+PANELsize2+2),intent(in)  :: solution
+        real(kind=8),dimension(PANELsize1),intent(out)              :: cp_vec1
+        real(kind=8),dimension(PANELsize2),intent(out)              :: cp_vec2       
+        real(kind=8),intent(in)                                     :: V
+        real(kind=8),intent(in)                                     :: alpha
+        real(kind=8),intent(in)                                     :: P0
+        real(kind=8),intent(in)                                     :: rho
+        real(kind=8),dimension(2,2)                                 :: ROT  
+        real(kind=8),dimension(2)                                   :: velocity
+        real(kind=8),dimension(2)                                   :: vel
+        real(kind=8)                                                :: pressure
+        real(kind=8)                                                :: norm_vel
+        real(kind=8),dimension(PANELsize1)                          :: cp_coeff1
+        real(kind=8),dimension(PANELsize2)                          :: cp_coeff2
+        real(kind=8)                                                :: normal_velocity
+        real(kind=8)                                                :: circulation
+        integer(kind=4)                                             :: j, k       
+        
+        ! initializing circulation
+        circulation = 0.0
+
+        ! open file to save data 
+        open(unit=1, file='FLOWfield_airfoilMULTI1.dat', status='replace')
+        open(unit=2, file='cp_dataMULTI1.dat', status='replace')
+        
+        ! exernal velocity 
+        vel(1) = V*cos(alpha)
+        vel(2) = V*sin(alpha) 
+        
+        ! rotation matrix --> alpha angle > 0 if it's counterclockwise
+        ! -- the sine and cosine terms respect the direct rotation matrix description 
+        ROT(1,1) =  cos(alpha)
+        ROT(2,1) =  sin(alpha) 
+        ROT(1,2) = -sin(alpha)
+        ROT(2,2) =  cos(alpha)      
+
+        do j=1,PANELsize1 
+
+            ! updating circulation 
+            circulation = circulation + solution(PANELsize1+1)*PANEL_array1(j)%get_length()
+                
+            velocity = (/0.0, 0.0/)
+            
+            ! computing airfoil's panels induction 
+            do k=1,PANELsize1 
+                velocity = velocity + integral(PANEL_array1(j),PANEL_array1(k),'source')*solution(k)
+                velocity = velocity + integral(PANEL_array1(j),PANEL_array1(k),'vortex')*solution(PANELsize1+1)
+            end do
+            
+            ! computing ground panels induction 
+            do k=1,PANELsize2
+                velocity = velocity + integral(PANEL_array1(j),PANEL_array2(k),'source')*solution(PANELsize1+1+k)
+                velocity = velocity + integral(PANEL_array1(j),PANEL_array2(k),'vortex')*solution(PANELsize1+PANELsize2+2)
+            end do
+
+            velocity = velocity + vel
+            
+            norm_vel = norm(velocity)
+
+            pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)
+
+            cp_coeff1(j) = 1 - (norm_vel/V)**2  
+                
+            normal_velocity = dot_product(PANEL_array1(j)%normal,velocity)
+
+            write(1,*) PANEL_array1(j)%midpoint, matmul(ROT,PANEL_array1(j)%midpoint), &
+                       velocity(1), velocity(2), norm_vel, & 
+                       pressure   , cp_coeff1(j)   , normal_velocity       
+            
+        end do
+        
+        call write_formatted('[','normal','OK','green','] -- velocity and pressure field around airfoil computed ','normal', & 
+                             '--> FLOWfield_airfoil.dat','normal') 
+        
+        print*, 'total circulation (GAMMA) 1st airfoil = ', circulation 
+        
+        ! writing Cp data in a separate file in order to separate the UPPER and LOWER surface in plotting procedure 
+        do j=1,PANELsize1/2
+            write(2,*) PANEL_array1(j)%midpoint(1),              - cp_coeff1(j), & 
+                       PANEL_array1(j+PANELsize1/2)%midpoint(1), - cp_coeff1(PANELsize1/2+j)
+        end do
+                
+        close(1)
+        close(2)
+
+        cp_vec1 = cp_coeff1
+        
+        ! initializing circulation
+        circulation = 0.0
+
+        ! open file to save data 
+        open(unit=1, file='FLOWfield_airfoilMULTI2.dat', status='replace')
+        open(unit=2, file='cp_dataMULTI2.dat', status='replace')
+        
+        ! exernal velocity 
+        vel(1) = V*cos(alpha)
+        vel(2) = V*sin(alpha) 
+        
+        ! rotation matrix --> alpha angle > 0 if it's counterclockwise
+        ! -- the sine and cosine terms respect the direct rotation matrix description 
+        ROT(1,1) =  cos(alpha)
+        ROT(2,1) =  sin(alpha) 
+        ROT(1,2) = -sin(alpha)
+        ROT(2,2) =  cos(alpha)      
+
+        do j=1,PANELsize2
+
+            ! updating circulation 
+            circulation = circulation + solution(PANELsize1+PANELsize2+2)*PANEL_array2(j)%get_length()
+                
+            velocity = (/0.0, 0.0/)
+            
+            ! computing airfoil's panels induction 
+            do k=1,PANELsize2
+                velocity = velocity + integral(PANEL_array2(j),PANEL_array2(k),'source')*solution(PANELsize1+1+k)
+                velocity = velocity + integral(PANEL_array2(j),PANEL_array2(k),'vortex')*solution(PANELsize1+PANELsize2+2)
+            end do
+            
+            ! computing ground panels induction 
+            do k=1,PANELsize1
+                velocity = velocity + integral(PANEL_array2(j),PANEL_array1(k),'source')*solution(k)
+                velocity = velocity + integral(PANEL_array2(j),PANEL_array1(k),'vortex')*solution(PANELsize1+1)
+            end do
+
+            velocity = velocity + vel
+            
+            norm_vel = norm(velocity)
+
+            pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)
+
+            cp_coeff2(j) = 1 - (norm_vel/V)**2  
+                
+            normal_velocity = dot_product(PANEL_array2(j)%normal,velocity)
+
+            write(1,*) PANEL_array2(j)%midpoint, matmul(ROT,PANEL_array2(j)%midpoint), &
+                       velocity(1), velocity(2), norm_vel, & 
+                       pressure   , cp_coeff2(j)   , normal_velocity       
+            
+        end do
+        
+        call write_formatted('[','normal','OK','green','] -- velocity and pressure field around airfoil computed ','normal', & 
+                             '--> FLOWfield_airfoil.dat','normal') 
+        
+        print*, 'total circulation (GAMMA) 2nd airfoil = ', circulation 
+        
+        ! writing Cp data in a separate file in order to separate the UPPER and LOWER surface in plotting procedure 
+        do j=1,PANELsize2/2
+            write(2,*) PANEL_array2(j)%midpoint(1),              - cp_coeff2(j), & 
+                       PANEL_array2(j+PANELsize2/2)%midpoint(1), - cp_coeff2(PANELsize2/2+j)
+        end do
+                
+        close(1)
+        close(2)
+
+        cp_vec2 = cp_coeff2
+
+        ! plot data 
+        call system('gnuplot -p CP_plot_MULTI.plt')
+
+    end subroutine compute_MULTIairfoilFIELD
 
 end module multi_cp

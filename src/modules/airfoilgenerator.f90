@@ -227,7 +227,7 @@ module airfoilgenerator
                 ! call ask_and_save(airfoil,PANELarray,MEANLINEarray)
 
                 ! printing data
-                call GNUplot_print(airfoil,PANELarray,MEANLINEarray,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm) 
+                ! call GNUplot_print(airfoil,PANELarray,MEANLINEarray,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm) 
             !!!!!!!!!!!!!!!!!!!!!!! SAVING & GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!
             
             ! data deallocation procedure
@@ -269,12 +269,12 @@ module airfoilgenerator
         
         x = 1
 
-        do while(x==1)
+        !do while(x==1)
             
             call write_formatted('SETTING GEOMETRY','yellow')
 
             if(selection == 3)then 
-                print*, 'creaing a new 4 digits airfoil'
+                print*, 'creating a new 4 digits airfoil'
 
                 ! making new geometry from scratch
                 call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, &
@@ -283,34 +283,32 @@ module airfoilgenerator
                 x = 0
 
             else 
-                print*, 'load data from an existing .dat file created by previous runs  --'
-                print*, '--- PAY ATTENTION --- in case of loading file, the airfoil AOA --'
-                print*, '    is referred to the saved airfoil NOT the AOA just typed    --> type(1)'
-                print*, 'create a new 4 digits airfoil from scratch                     --> type(2)'
-                read*, selection_type
+                ! print*, 'load data from an existing .dat file created by previous runs  --'
+                ! print*, '--- PAY ATTENTION --- in case of loading file, the airfoil AOA --'
+                ! print*, '    is referred to the saved airfoil NOT the AOA just typed    --> type(1)'
+                print*, 'create a 4 digits airfoil from scratch'
+                !read*, selection_type
 
-                select case(selection_type)
-                    case(1)
-                        ! extracting data from .dat files from data created by airfoilgenerator.f90
-                        call manage_data(airfoil,MEAN_array,PANEL_array,MEANsize,PANELsize,filename)
-                        
-                        x = 0
-
-                    case(2)
+                !select case(selection_type)
+                !    case(1)
+                !        ! extracting data from .dat files from data created by airfoilgenerator.f90
+                !        call manage_data(airfoil,MEAN_array,PANEL_array,MEANsize,PANELsize,filename)
+                !        
+                !        x = 0
+                !
+                !    case(2)
                         ! making new geometry form scratch 
                         call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, & 
                                           GNUplot_tg_norm)
-
+                
                         x = 0 
 
-                    case default 
-                        print*, 'you have selected an invalid action', new_line('(A)'), 'type again'
+                !    case default 
+                !        print*, 'you have selected an invalid action', new_line('(A)'), 'type again'
 
-                end select 
+                !end select 
             end if 
-        end do 
-        
-        print*, new_line('(A)')
+        !end do 
 
     end subroutine ask_geometry 
 
