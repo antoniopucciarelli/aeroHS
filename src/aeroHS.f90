@@ -117,9 +117,6 @@ program aeroHS
                 CL = compute_cl(cp_vec,PANEL_array,PANELsize)
                 print*, 'CL value                  = ', CL
 
-                ! asking to save matrices, known vector and solution
-                ! call ask_to_save_matrix_vector(PANELsize,matrix,vector,solution)
-
                 !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
                 ! high demanding process 
                 ! -- it depends on the dimension of the system and its discrtization
@@ -233,6 +230,12 @@ program aeroHS
             
         else if(selection_type == 2)then 
             
+            ! known variables 
+            V     = 1.0 
+            alpha = 0.0
+            rho   = 1.0
+            P0    = 1.0
+            
             ! generating airfoils 
             call generate_airfoils(selection,selection_type,alpha1,alpha2,PANELsize1,PANELsize2,PANEL_array1,PANEL_array2, &
                                    MEAN_array1,MEAN_array2)
@@ -242,12 +245,8 @@ program aeroHS
 
             ! computing system matrix 
             call compute_multi_matrix(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,matrix)
-  
-            ! computing vector matrix 
-            V     = 1.0 
-            alpha = 0.0
-            rho   = 1.0
-            P0    = 1.0
+             
+            ! computing known vector  
             call compute_multi_vector(vector,PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,alpha,V)
             
             ! saving matrix, vectors
@@ -263,7 +262,15 @@ program aeroHS
             allocate(cp_vec1(PANELsize1))
             allocate(cp_vec2(PANELsize2))
             call compute_MULTIairfoilFIELD(solution,PANEL_array1,PANEL_array2,PANELsize1,PANELsize2,cp_vec1,cp_vec2,P0,alpha,V,rho)
-             
+            
+            ! computing Cl
+            ! 1st airfoil 
+            CL = compute_cl(cp_vec1,PANEL_array1,PANELsize1)
+            print*, '1st airfoil Cl = ', CL
+            ! 2nd airfoil
+            CL = compute_cl(cp_vec2,PANEL_array2,PANELsize2)
+            print*, '2nd airfoil Cl = ', CL
+
             ! computing velocity and pressure fields
             ! plotting pressure field 
             filename = 'FLOWfieldMULTI.dat'
@@ -277,6 +284,8 @@ program aeroHS
             deallocate(solution) 
             deallocate(MEAN_array1)
             deallocate(MEAN_array2)
+            deallocate(cp_vec1)
+            deallocate(cp_vec2)
 
         else if(selection_type == 3)then 
 
@@ -310,7 +319,7 @@ program aeroHS
             call solveGROUND(solution,matrix,vector,PANELsize,GROUNDsize)
             
             ! asking to save matrices, known vector and solution
-            call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
+            ! call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
             
             !!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!!
             ! high demanding process 
