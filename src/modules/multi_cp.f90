@@ -529,7 +529,7 @@ module multi_cp
         real(kind=8)                                                :: normal_velocity
         real(kind=8)                                                :: circulation
         integer(kind=4)                                             :: j, k       
-        
+
         ! initializing circulation
         circulation = 0.0
 

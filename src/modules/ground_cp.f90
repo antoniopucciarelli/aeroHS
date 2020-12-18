@@ -59,23 +59,21 @@ module ground_cp
          end do  
         
          ! saving data in file
-         open(unit=1, file='GROUNDdata.dat',   status='replace')
-         open(unit=2, file='GROUNDpanels.dat', status='replace')        
+         open(unit=1, file='GROUNDpanels.dat', status='replace')        
 
          write(1,*) 'GROUND panel objects'
          
          ! saving process 
          do j=1,GROUNDsize 
             call GROUNDpanel(j)%saving(1)
-            write(2,*) GROUNDpanel(j)%coords1            
+            write(1,*) GROUNDpanel(j)%coords1            
          end do 
 
-         write(2,*) GROUNDpanel(GROUNDsize)%coords2
+         write(1,*) GROUNDpanel(GROUNDsize)%coords2
 
          call write_formatted('[','normal','OK','green','] -- ground panels generated','normal') 
         
          close(1)
-         close(2)
     end subroutine generate_ground 
         
     subroutine computeGROUNDmatrix(matrix,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,panel_type)
@@ -389,10 +387,6 @@ module ground_cp
                     velocity = (/0.0, 0.0/)
                     norm_vel = 0
                 end if
-              !  ! plotting condition --> avoid to display non physical values for pressure 
-              !  if(pressure < 0)then 
-              !      pressure = - 0.5
-              !  end if
 
                 ! writing data in file 
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
@@ -446,7 +440,7 @@ module ground_cp
         real(kind=8)                                              :: circulation
         integer(kind=4)                                           :: j, k       
         character(len=6),intent(in)                               :: panel_type 
-        
+
         ! initializing circulation
         circulation = 0.0
 
@@ -519,5 +513,54 @@ module ground_cp
         call system('gnuplot -p CP_plotGE.plt')
 
     end subroutine compute_airfoilFIELD
+
+    subroutine compute_GROUNDpanelVEL(PANELsize,GROUNDsize,PANEL_array,GROUNDpanel,solution,alpha,V,panel_type)
+        use PANEL_object
+        use cp 
+        
+        implicit none 
+
+        integer(kind=4),intent(in)                                :: PANELsize
+        integer(kind=4),intent(in)                                :: GROUNDsize
+        type(panel),intent(in),dimension(PANELsize)               :: PANEL_array
+        type(panel),intent(in),dimension(GROUNDsize)              :: GROUNDpanel      
+        real(kind=8),intent(in),dimension(PANELsize+GROUNDsize+1) :: solution 
+        integer(kind=4)                                           :: i, j 
+        real(kind=8)                                              :: vortex_value
+        real(kind=8),dimension(2)                                 :: velocity
+        real(kind=8),intent(in)                                   :: alpha
+        real(kind=8),intent(in)                                   :: V        
+        real(kind=8),dimension(2)                                 :: vel
+        character(len=6),intent(in)                               :: panel_type
+
+        vel(1) = V*cos(alpha)
+        vel(2) = V*sin(alpha)
+        
+        open(unit=1, file='GROUNDvel.dat', status='replace')
+
+        write(1,*) '# PANEL ------> [X velocity , Y velocity]'
+
+        do i=1,GROUNDsize
+
+            velocity = (/0.0, 0.0/)
+                
+            do j=1,PANELsize
+                velocity = velocity + integral(GROUNDpanel(i),PANEL_array(j),'source')*solution(j)
+                velocity = velocity + integral(GROUNDpanel(i),PANEL_array(j),'vortex')*solution(PANELsize+1)
+            end do
+            
+            do j=1,GROUNDsize
+                velocity = velocity + integral(GROUNDpanel(i),GROUNDpanel(j),panel_type)*solution(PANELsize+1+j)
+            end do 
+            
+            velocity = velocity + vel
+            
+            write(1,*) 'GROUNDpanel ', i, 'X = ', velocity(1), 'Y = ', velocity(2)
+
+        end do 
+        
+        close(1)
+
+    end subroutine compute_GROUNDpanelVEL
 
 end module ground_cp

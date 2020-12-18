@@ -317,7 +317,10 @@ program aeroHS
 
             ! computing solution
             call solveGROUND(solution,matrix,vector,PANELsize,GROUNDsize)
-            
+
+            ! computing ground velocity 
+            call compute_GROUNDpanelVEL(PANELsize,GROUNDsize,PANEL_array,GROUNDpanel,solution,real(0.0,8),V,panel_type) 
+
             ! asking to save matrices, known vector and solution
             ! call ask_to_save_matrix_vector(PANELsize+GROUNDsize,matrix,vector,solution)
             

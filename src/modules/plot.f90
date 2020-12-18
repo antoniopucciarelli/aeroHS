@@ -112,7 +112,7 @@ module plot
         use FOUL
         implicit none 
  
-        call system('gnuplot -p VELfield.plt')
+        call system('gnuplot -p PRESSUREfield.plt')
 
         call write_formatted('[','normal','OK','green','] -- velocity field plotted ','normal')
     end subroutine plot_vel_field 
