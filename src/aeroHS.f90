@@ -270,7 +270,10 @@ program aeroHS
             ! 2nd airfoil
             CL = compute_cl(cp_vec2,PANEL_array2,PANELsize2)
             print*, '2nd airfoil Cl = ', CL
-
+            
+            ! computing velocity at y = 0
+            call  compute_midflow(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,solution,V,real(0.0,8))
+            
             ! computing velocity and pressure fields
             ! plotting pressure field 
             filename = 'FLOWfieldMULTI.dat'

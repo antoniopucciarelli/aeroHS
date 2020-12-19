@@ -679,10 +679,10 @@ module multi_cp
         implicit none 
         
         integer(kind=4),intent(in)                     :: PANELsize
-        integer(kind=4)                                :: i 
         type(panel),dimension(PANELsize),intent(inout) :: PANEL_array
         type(panel),dimension(PANELsize)               :: PANEL_array_temp 
         real(kind=8),dimension(2)                      :: temp 
+        integer(kind=4)                                :: i 
 
         do i=1,PANELsize
             
@@ -698,17 +698,17 @@ module multi_cp
             PANEL_array(i)%coords1 = PANEL_array(i)%coords2
             PANEL_array(i)%coords2 = temp
 
-            call PANEL_array(i)%set_angle() 
-
             if(PANEL_array(i)%POS == 'UP')then 
                 PANEL_array(i)%POS = 'DW'
-            else 
+            else if(PANEL_array(i)%POS == 'DW')then  
                 PANEL_array(i)%POS = 'UP'
             end if
             
-            call PANEL_array(i)%compute_tangent_and_normal() 
+            call PANEL_array(i)%set_angle() 
 
             call PANEL_array(i)%compute_ROT()
+
+            call PANEL_array(i)%compute_tangent_and_normal() 
 
             PANEL_array_temp(PANELsize-(i-1)) = PANEL_array(i) 
 
@@ -717,5 +717,79 @@ module multi_cp
         PANEL_array = PANEL_array_temp
 
     end subroutine invert  
+
+    subroutine compute_midflow(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,solution,V,alpha)
+        use cp 
+        use PANEL_object
+
+        implicit none 
+
+        integer(kind=4),intent(in)                                 :: PANELsize1
+        integer(kind=4),intent(in)                                 :: PANELsize2
+        type(panel),dimension(PANELsize1),intent(in)               :: PANEL_array1
+        type(panel),dimension(PANELsize2),intent(in)               :: PANEL_array2
+        type(panel)                                                :: dummy_panel
+        real(kind=8),dimension(PANELsize1+PANELsize2+2),intent(in) :: solution
+        real(kind=8),dimension(2)                                  :: velocity
+        real(kind=8),dimension(2)                                  :: vel 
+        real(kind=8),intent(in)                                    :: alpha
+        real(kind=8),intent(in)                                    :: V
+        real(kind=8)                                               :: deltax 
+        real(kind=8)                                               :: x1, x2
+        real(kind=8)                                               :: counting
+        integer(kind=4)                                            :: GROUNDsize
+        integer(kind=4)                                            :: i, j
+
+        vel(1) = V*cos(alpha)
+        vel(2) = V*sin(alpha)
+
+        x1 = - 4 
+        x2 =   4
+        
+        GROUNDsize = 200
+
+        deltax = (x2 - x1)/GROUNDsize
+        
+        open(unit=1, file='velMULTI.dat', status='replace')
+            
+        write(1,*) 'mipoint position X Y velocity X Y'
+        
+        counting = 0.0
+
+        dummy_panel%normal  = (/0.0, 1.0/)
+        dummy_panel%tangent = (/1.0, 0.0/) 
+        
+        do i=1,GROUNDsize
+
+            counting = x1 + deltax*i
+
+            dummy_panel%midpoint(1) = counting
+            dummy_panel%midpoint(2) = 0.0
+
+            velocity = (/0.0, 0.0/)
+
+            do j=1,PANELsize1
+                
+                velocity = velocity + integral(dummy_panel,PANEL_array1(j),'source')*solution(j)
+                velocity = velocity + integral(dummy_panel,PANEL_array1(j),'vortex')*solution(PANELsize1+1)
+
+            end do 
+
+            do j=1,PANELsize2
+                
+                velocity = velocity + integral(dummy_panel,PANEL_array2(j),'source')*solution(PANELsize1+1+j)
+                velocity = velocity + integral(dummy_panel,PANEL_array2(j),'vortex')*solution(PANELsize1+PANELsize2+2)
+            
+            end do 
+
+            velocity = velocity + vel 
+
+            write(1,*) 'position x = ', dummy_panel%midpoint(1), ' y = ', dummy_panel%midpoint(2), ' Xvel = ', velocity(1), & 
+                       ' Yvel = ', velocity(2)
+        end do 
+
+        close(1)
+    
+    end subroutine compute_midflow
 
 end module multi_cp
