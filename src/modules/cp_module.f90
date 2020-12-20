@@ -471,7 +471,8 @@ module cp
 
         compute_vel = matmul(matrix, solution) + vector 
         
-        print*, 'total circulation (GAMMA) = ', circulation 
+        print*, 'total circulation (GAMMA) = ',   circulation 
+        print*, 'Cl                        = ', - circulation * 2 
 
     end function compute_vel
 
@@ -593,7 +594,7 @@ module cp
         real(kind=8),dimension(:),allocatable           :: Vvec
         real(kind=8),dimension(:),allocatable           :: pressure
         real(kind=8),dimension(:),allocatable           :: cp_vec
-        integer(kind=4)                                 :: i
+        integer(kind=4)                                 :: i, j
         real(kind=8)                                    :: k
         
         ! computing alpha angle set        
@@ -603,6 +604,9 @@ module cp
         call airfoil%set_AIRFOILname()
         call airfoil%set_npoints()
         airfoil%scaling = 1.0
+        
+        PANELsize = airfoil%n_points*2 - 2        
+        allocate(PANEL_array(PANELsize))
 
         do i=1,angle_num
             
@@ -611,7 +615,7 @@ module cp
             ! making geometry --> it uses the airfoil object and then varies the alpha angle 
             call airfoil_CL(alpha_angle(i),airfoil,PANELsize,PANEL_array)
             
-            if(i==1)then
+            if(i == 1)then
                 ! allocating variables
                 allocate(vector(PANELsize+1))
                 allocate(solution(PANELsize+1))
@@ -628,19 +632,26 @@ module cp
             ! solving system
             solution = solve_matrix(matrix,vector,PANELsize)
             
-            ! computing velocity 
-            Vvec     = compute_vel(solution,PANELsize,PANEL_array,real(1.0,8),real(0.0,8))
-            
-            ! computing Cp
-            cp_vec   = compute_cp(Vvec,real(1.0,8),PANELsize)
+           ! ! computing velocity 
+           ! Vvec     = compute_vel(solution,PANELsize,PANEL_array,real(1.0,8),real(0.0,8))
+           ! 
+           ! ! computing Cp
+           ! cp_vec   = compute_cp(Vvec,real(1.0,8),PANELsize)
 
             ! computing Cl wrt alpha
             cl_alpha(i,1) = alpha_angle(i)*180/pi                    ! conversion to deg angle
-            cl_alpha(i,2) = compute_cl(cp_vec,PANEL_array,PANELsize)
-            
+           ! cl_alpha(i,2) = compute_cl(cp_vec,PANEL_array,PANELsize)
+                
+            cl_alpha(i,2) = 0.0
+
+            do j=1,PANELsize 
+
+                cl_alpha(i,2) = cl_alpha(i,2) - 2 * PANEL_array(j)%length * solution(PANELsize+1)
+
+            end do   
+
             ! deallocation of matrix --> this because in the compute_matrix subroutine it allocates the matrix in the memory            
             deallocate(matrix)
-            deallocate(PANEL_array)        
 
         end do 
 
@@ -668,7 +679,7 @@ module cp
 
         ! variable declaration
         type(NACA_airfoil)                                  :: airfoil            ! airfoil object
-        type(panel),allocatable,dimension(:),intent(inout)  :: PANELarray         ! panel object array
+        type(panel),dimension(:),intent(inout)              :: PANELarray         ! panel object array
         type(MEANline),allocatable,dimension(:)             :: MEANLINEarray      ! mean line point object array
         real(kind=8),allocatable,dimension(:)               :: coordyUP           ! x-coords array -> describes the UPPER airfoil geometry
         real(kind=8),allocatable,dimension(:)               :: coordxUP           ! y-coords array -> describes the UPPER airfoil geometry
@@ -700,7 +711,6 @@ module cp
         allocate(coordyUP(1:dim))
         allocate(coordxDW(1:dim)) 
         allocate(coordyDW(1:dim))
-        allocate(PANELarray(1:2*dim-2)) 
         allocate(MEANLINEarray(1:dim))
 
 
