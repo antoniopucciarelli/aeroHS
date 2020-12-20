@@ -56,14 +56,15 @@ module multi_cp
         filename2 = 'GNUplot_tg_norm2.dat'
         call write_formatted('SECOND AIRFOIL','yellow')
         call make_airfoil(PANELsize2,MEANLINEarray2,PANEL_array2,airfoil2,alpha2,filename,filename1,filename2) 
-        
-        ! asking to invert airfoil --> useful for ground effect study
-        print*, 'do you want to invert the 2nd airfoil coords? [Y\n]'
-        read*, answer
 
-        if(answer == 'Y' .or. answer == 'y')then 
-            call invert(PANELsize2,PANEL_array2)
-        end if 
+! !!! PAY ATTENTION !!! this part of the code presents an error        
+!        ! asking to invert airfoil --> useful for ground effect study
+!        print*, 'do you want to invert the 2nd airfoil coords? [Y\n]'
+!        read*, answer
+!
+!        if(answer == 'Y' .or. answer == 'y')then 
+!            call invert(PANELsize2,PANEL_array2)
+!        end if 
 
         ! savin 2nd airfoil data
         call GNUplot_saving(PANEL_array2,MEANLINEarray2,airfoil2%get_npoints(),filename,filename1,filename2)
@@ -314,13 +315,15 @@ module multi_cp
         real(kind=8),intent(in)                                    :: alpha
         real(kind=8)                                               :: pressure
         real(kind=8)                                               :: norm_vel
-        real(kind=8),intent(in)                                    :: P0
+        real(kind=8),intent(inout)                                 :: P0
         real(kind=8),intent(in)                                    :: rho
         type(array_type),dimension(:,:),allocatable                :: grid
         integer(kind=4)                                            :: nrows, ncols
         character(len=30),intent(in)                               :: filename
         integer(kind=4)                                            :: x1, x2
         
+        P0 = 10
+
         ! declaring grid dimensions
         nrows = 150
         ncols = 350
@@ -476,6 +479,10 @@ module multi_cp
                 ! computing the pressure with BERNOULLI's theorem 
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
                 
+                if(pressure < 0)then
+                    pressure = P0 + 0.5*rho*V**2
+                end if
+                
                 ! writing data in file 
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
                            velocity(1), velocity(2), norm_vel, & 
@@ -584,7 +591,7 @@ module multi_cp
         end do
         
         call write_formatted('[','normal','OK','green','] -- velocity and pressure field around airfoil computed ','normal', & 
-                             '--> FLOWfield_airfoil.dat','normal') 
+                             '--> FLOWfield_airfoilMULTI1.dat','normal') 
         
         print*, 'total circulation (GAMMA) 1st airfoil = ', circulation 
         
@@ -653,7 +660,7 @@ module multi_cp
         end do
         
         call write_formatted('[','normal','OK','green','] -- velocity and pressure field around airfoil computed ','normal', & 
-                             '--> FLOWfield_airfoil.dat','normal') 
+                             '--> FLOWfield_airfoilMULTI2.dat','normal') 
         
         print*, 'total circulation (GAMMA) 2nd airfoil = ', circulation 
         
@@ -672,51 +679,7 @@ module multi_cp
         call system('gnuplot -p CP_plot_MULTI.plt')
 
     end subroutine compute_MULTIairfoilFIELD
-        
-    subroutine invert(PANELsize,PANEL_array)
-        use PANEL_object 
-    
-        implicit none 
-        
-        integer(kind=4),intent(in)                     :: PANELsize
-        type(panel),dimension(PANELsize),intent(inout) :: PANEL_array
-        type(panel),dimension(PANELsize)               :: PANEL_array_temp 
-        real(kind=8),dimension(2)                      :: temp 
-        integer(kind=4)                                :: i 
 
-        do i=1,PANELsize
-            
-            PANEL_array(i)%coords1(2)  = - PANEL_array(i)%coords1(2)
-            PANEL_array(i)%coords2(2)  = - PANEL_array(i)%coords2(2)
-            PANEL_array(i)%midpoint(2) = - PANEL_array(i)%midpoint(2) 
-            
-            ! swapping panel ID
-            PANEL_array(i)%id = PANELsize - (i-1) 
-
-            ! swapping coords to match the requirements
-            temp                   = PANEL_array(i)%coords1 
-            PANEL_array(i)%coords1 = PANEL_array(i)%coords2
-            PANEL_array(i)%coords2 = temp
-
-            if(PANEL_array(i)%POS == 'UP')then 
-                PANEL_array(i)%POS = 'DW'
-            else if(PANEL_array(i)%POS == 'DW')then  
-                PANEL_array(i)%POS = 'UP'
-            end if
-            
-            call PANEL_array(i)%set_angle() 
-
-            call PANEL_array(i)%compute_ROT()
-
-            call PANEL_array(i)%compute_tangent_and_normal() 
-
-            PANEL_array_temp(PANELsize-(i-1)) = PANEL_array(i) 
-
-        end do  
-
-        PANEL_array = PANEL_array_temp
-
-    end subroutine invert  
 
     subroutine compute_midflow(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,solution,V,alpha)
         use cp 
@@ -792,4 +755,49 @@ module multi_cp
     
     end subroutine compute_midflow
 
+! !!! PAY ATTENTION !!! this subroutine has an error in the complete code     
+!    subroutine invert(PANELsize,PANEL_array)
+!        use PANEL_object 
+!    
+!        implicit none 
+!        
+!        integer(kind=4),intent(in)                     :: PANELsize
+!        type(panel),dimension(PANELsize),intent(inout) :: PANEL_array
+!        type(panel),dimension(PANELsize)               :: PANEL_array_temp 
+!        real(kind=8),dimension(2)                      :: temp 
+!        integer(kind=4)                                :: i 
+!
+!        do i=1,PANELsize
+!            
+!            PANEL_array(i)%coords1(2)  = - PANEL_array(i)%coords1(2)
+!            PANEL_array(i)%coords2(2)  = - PANEL_array(i)%coords2(2)
+!            PANEL_array(i)%midpoint(2) = - PANEL_array(i)%midpoint(2) 
+!            
+!            ! swapping panel ID
+!            PANEL_array(i)%id = PANELsize - (i-1) 
+!
+!            ! swapping coords to match the requirements
+!            temp                   = PANEL_array(i)%coords1 
+!            PANEL_array(i)%coords1 = PANEL_array(i)%coords2
+!            PANEL_array(i)%coords2 = temp
+!
+!            if(PANEL_array(i)%POS == 'UP')then 
+!                PANEL_array(i)%POS = 'DW'
+!            else if(PANEL_array(i)%POS == 'DW')then  
+!                PANEL_array(i)%POS = 'UP'
+!            end if
+!            
+!            call PANEL_array(i)%set_angle() 
+!
+!            call PANEL_array(i)%compute_ROT()
+!
+!            call PANEL_array(i)%compute_tangent_and_normal() 
+!
+!            PANEL_array_temp(PANELsize-(i-1)) = PANEL_array(i) 
+!
+!        end do  
+!
+!        PANEL_array = PANEL_array_temp
+!
+!    end subroutine invert  
 end module multi_cp

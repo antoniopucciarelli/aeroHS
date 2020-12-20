@@ -388,6 +388,10 @@ module ground_cp
                     norm_vel = 0
                 end if
 
+                if(pressure < 0)then
+                    pressure = P0 + 0.5*rho*V**2
+                end if
+                
                 ! writing data in file 
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &
                            velocity(1), velocity(2), norm_vel, & 

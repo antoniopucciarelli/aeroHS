@@ -269,10 +269,10 @@ module cp
         integer(kind=4)                                     :: i, j 
         type(panel),dimension(PANELsize),intent(in)         :: PANEL_array
         real(kind=8),dimension(:,:),allocatable,intent(out) :: matrix
-        real(kind=8)                                        :: vortex_value = 0.0
-        real(kind=8),dimension(2)                           :: tangent_ith, normal_ith
-        real(kind=8),dimension(2)                           :: tangent_first, normal_first
-        real(kind=8),dimension(2)                           :: tangent_last, normal_last
+        real(kind=8)                                        :: vortex_value
+        real(kind=8),dimension(2)                           :: normal_ith
+        real(kind=8),dimension(2)                           :: tangent_first
+        real(kind=8),dimension(2)                           :: tangent_last
 
         allocate(matrix(PANELsize+1,PANELsize+1))
 
@@ -281,24 +281,25 @@ module cp
             ! declaring normal vector
             normal_ith  = PANEL_array(i)%normal
 
+            vortex_value = 0.0
+
             do j=1,PANELsize
                 matrix(i,j)  = dot_product(normal_ith,integral(PANEL_array(i),PANEL_array(j),'source'))
                 vortex_value = vortex_value + dot_product(normal_ith,integral(PANEL_array(i),PANEL_array(j),'vortex'))
             end do
 
             matrix(i,PANELsize+1) = vortex_value
-            vortex_value          = 0.0
 
         end do 
         
         ! declaring tangent and normal vectors
         ! first panel -- AIRFOIL UPPER PART 
-        normal_first  = PANEL_array(1)%normal
         tangent_first = PANEL_array(1)%tangent
         ! last panel  -- AIRFOIL LOWER PART 
-        normal_last   = PANEL_array(PANELsize)%normal
         tangent_last  = PANEL_array(PANELsize)%tangent 
         
+        vortex_value = 0.0
+
         ! KUTTA-JOUKOSKY condition        
         do j=1,PANELsize
 
@@ -342,9 +343,9 @@ module cp
         do i=1,PANELsize
 
             ! declaring normal vector
-            normal_ith =   PANEL_array(i)%normal
+            normal_ith = PANEL_array(i)%normal
 
-            vector(i)  = - dot_product(V_vec,normal_ith)
+            vector(i)  = dot_product(V_vec,normal_ith)
         
         end do
 
@@ -352,10 +353,11 @@ module cp
         tangent_first = PANEL_array(1)%tangent
         tangent_last  = PANEL_array(PANELsize)%tangent
        
-        vector(PANELsize+1) = - (dot_product(V_vec,tangent_first) + &
-                                 dot_product(V_vec,tangent_last))
+        vector(PANELsize+1) = dot_product(V_vec,tangent_first) + dot_product(V_vec,tangent_last)
 
         call write_formatted('[','normal','OK','green','] -- velocity vector created','normal')
+
+        vector = - vector 
 
     end subroutine compute_vector
 
@@ -537,60 +539,342 @@ module cp
 
     end function compute_cl
 
-    subroutine CLalpha(cl_alpha,start_angle,end_angle,dim,matrix,PANEL_array,PANELsize)
-    ! this subroutine computes the cl alpha diagram for the airfoil 
-        use FOUL 
-        use PANEL_object
-        use plot
-        use math_module
+    subroutine compute_angle(alpha_angle,start_angle,end_angle,angle_num)
+    ! this subroutine computes the angle vector for the computation of Cl    
+        use math_module 
+
         implicit none 
 
-        integer(kind=4)                                 :: start_angle
-        integer(kind=4)                                 :: end_angle
-        integer(kind=4)                                 :: dim                             
-        real(kind=8),dimension(dim)                     :: alpha_angle 
-        integer(kind=4),intent(in)                      :: PANELsize
-        real(kind=8),dimension(PANELsize+1,PANELsize+1) :: matrix
-        type(panel),dimension(PANELsize)                :: PANEL_array
-        real(kind=8),dimension(PANELsize+1)             :: vector
-        real(kind=8),dimension(dim,2),intent(inout)     :: cl_alpha 
-        real(kind=8),dimension(PANELsize)               :: solution
-        real(kind=8),dimension(PANELsize)               :: Vvec
-        real(kind=8),dimension(PANELsize)               :: pressure
-        real(kind=8),dimension(PANELsize)               :: cp_vec
-        integer(kind=4)                                 :: i
-        real(kind=8)                                    :: k
+        integer(kind=4),intent(in)                        :: start_angle
+        integer(kind=4),intent(in)                        :: end_angle
+        real(kind=8),dimension(:),allocatable,intent(out) :: alpha_angle
+        integer(kind=4),intent(in)                        :: angle_num
+        integer(kind=4)                                   :: i
+        real(kind=8)                                      :: k
+        
+        allocate(alpha_angle(angle_num))
 
-        k = real((end_angle - start_angle),8) /real(dim,8)
+        k = real((end_angle - start_angle),8) /real(angle_num,8)
 
-        do i=1,dim
+        do i=1,angle_num
             
             alpha_angle(i) = (real(start_angle,8) + k*real(i,8))/180*pi  
 
         end do 
 
-        alpha_angle(1)   = real(start_angle,8)/180*pi
-        alpha_angle(dim) = real(end_angle,8)/180*pi
+        alpha_angle(1)         = real(start_angle,8)/180*pi
+        alpha_angle(angle_num) = real(end_angle,8)/180*pi
+    
+    end subroutine compute_angle
+    
+    subroutine CLalpha(start_angle,end_angle,angle_num)
+    ! this subroutine computes the cl alpha diagram for the airfoil 
+        use AIRFOIL_object
+        use FOUL
+        use PANEL_object
+        use MEANline_object
+        use plot
+        use math_module
+        use ask_module
 
-        do i=1,dim
+        implicit none 
 
-            call compute_vector(real(1.0,8),alpha_angle(i),vector,PANEL_array,PANELsize)
+        integer(kind=4)                                 :: start_angle
+        integer(kind=4)                                 :: end_angle
+        integer(kind=4)                                 :: angle_num                             
+        type(NACA_airfoil)                              :: airfoil
+        real(kind=8),dimension(:),allocatable           :: alpha_angle 
+        integer(kind=4)                                 :: PANELsize
+        real(kind=8),dimension(:,:),allocatable         :: matrix
+        type(panel),dimension(:),allocatable            :: PANEL_array
+        real(kind=8),dimension(:),allocatable           :: vector
+        real(kind=8),dimension(:,:),allocatable         :: cl_alpha 
+        real(kind=8),dimension(:),allocatable           :: solution
+        real(kind=8),dimension(:),allocatable           :: Vvec
+        real(kind=8),dimension(:),allocatable           :: pressure
+        real(kind=8),dimension(:),allocatable           :: cp_vec
+        integer(kind=4)                                 :: i
+        real(kind=8)                                    :: k
+        
+        ! computing alpha angle set        
+        call compute_angle(alpha_angle,start_angle,end_angle,angle_num)
+
+        ! generating airfoil object 
+        call airfoil%set_AIRFOILname()
+        call airfoil%set_npoints()
+        airfoil%scaling = 1.0
+
+        do i=1,angle_num
             
-            solution      = solve_matrix(matrix,vector,PANELsize)
+            print*, 'alpha angle = ', alpha_angle(i)
 
-            Vvec          = compute_vel(solution,PANELsize,PANEL_array,real(1.0,8),alpha_angle(i))
+            ! making geometry --> it uses the airfoil object and then varies the alpha angle 
+            call airfoil_CL(alpha_angle(i),airfoil,PANELsize,PANEL_array)
             
-            cp_vec        = compute_cp(Vvec,real(1.0,8),PANELsize)
+            if(i==1)then
+                ! allocating variables
+                allocate(vector(PANELsize+1))
+                allocate(solution(PANELsize+1))
+                allocate(cp_vec(PANELsize))
+                allocate(cl_alpha(angle_num,2))
+            end if 
 
-            cl_alpha(i,1) = alpha_angle(i)*180/pi
+            ! computing matrix process
+            call compute_matrix(matrix,PANEL_array,PANELsize)
+
+            ! computing known vector 
+            call compute_vector(real(1.0,8),real(0.0,8),vector,PANEL_array,PANELsize)
+            
+            ! solving system
+            solution = solve_matrix(matrix,vector,PANELsize)
+            
+            ! computing velocity 
+            Vvec     = compute_vel(solution,PANELsize,PANEL_array,real(1.0,8),real(0.0,8))
+            
+            ! computing Cp
+            cp_vec   = compute_cp(Vvec,real(1.0,8),PANELsize)
+
+            ! computing Cl wrt alpha
+            cl_alpha(i,1) = alpha_angle(i)*180/pi                    ! conversion to deg angle
             cl_alpha(i,2) = compute_cl(cp_vec,PANEL_array,PANELsize)
+            
+            ! deallocation of matrix --> this because in the compute_matrix subroutine it allocates the matrix in the memory            
+            deallocate(matrix)
+            deallocate(PANEL_array)        
 
         end do 
 
-        call plot_cl(cl_alpha,dim)
+        call plot_cl(cl_alpha,angle_num)
+        
+        ! deallocation process            
+        deallocate(vector)
+        deallocate(solution)
+        deallocate(cp_vec)
+        deallocate(cl_alpha)
 
     end subroutine CLalpha
+
+    subroutine airfoil_CL(alpha,airfoil,PANELsize,PANELarray)
+
+        ! module declaration
+        use AIRFOIL_object
+        use PANEL_object
+        use MEANline_object
+        use discretization_module
+        use FOUL
+        use math_module  
+
+        implicit none
+
+        ! variable declaration
+        type(NACA_airfoil)                                  :: airfoil            ! airfoil object
+        type(panel),allocatable,dimension(:),intent(inout)  :: PANELarray         ! panel object array
+        type(MEANline),allocatable,dimension(:)             :: MEANLINEarray      ! mean line point object array
+        real(kind=8),allocatable,dimension(:)               :: coordyUP           ! x-coords array -> describes the UPPER airfoil geometry
+        real(kind=8),allocatable,dimension(:)               :: coordxUP           ! y-coords array -> describes the UPPER airfoil geometry
+        real(kind=8),allocatable,dimension(:)               :: coordyDW           ! x-coords array -> describes the LOWER airfoil geometry
+        real(kind=8),allocatable,dimension(:)               :: coordxDW           ! y-coords array -> describes the LOWER airfoil geometry
+        integer(kind=4)                                     :: counter = 1        ! # of airfoil studied counter
+        integer(kind=4)                                     :: x = 1              ! checking variable in while loop
+        integer(kind=4)                                     :: dim                ! auxiliary variable -> # of discretisation points for the airfoil
+        integer(kind=4)                                     :: k                  ! auxiliary variable
+        integer(kind=4)                                     :: j                  ! auxiliary variable
+        integer(kind=4)                                     :: i                  ! auxiliary variable
+        real(kind=8)                                        :: airfoil_data1      ! easy-access variable -> 1st number of airfoil%data
+        real(kind=8)                                        :: airfoil_data2      ! easy-access variable -> 2nd number of arifoil%data
+        real(kind=8),intent(in)                             :: alpha              ! AOA 
+        integer(kind=4),intent(inout)                       :: PANELsize          ! number of discretization panels
+        real(kind=8),dimension(2)                           :: transl             ! translation vector        
+        !character(len=30),intent(in)                        :: GNUplot_coord_data ! filename of the airfoil coords data container 
+        !character(len=30),intent(in)                        :: GNUplot_mean_data  ! filename of the airfoil mean data container
+        !character(len=30),intent(in)                        :: GNUplot_tg_norm    ! filename of the airfoil coords, tangent and normal data container
         
+        ! setting properties 
+        ! PAY ATTENTION the properties are already set in the setting_properties() subroutine
+        airfoil%AOA     = alpha
+
+        dim = airfoil%get_npoints()
+
+        ! data allocation procedure
+        allocate(coordxUP(1:dim)) 
+        allocate(coordyUP(1:dim))
+        allocate(coordxDW(1:dim)) 
+        allocate(coordyDW(1:dim))
+        allocate(PANELarray(1:2*dim-2)) 
+        allocate(MEANLINEarray(1:dim))
+
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! MEAN LINE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+        ! calculate airfoil mean line point discretisation along x-axis
+        do k=1,dim
+            call MEANLINEarray(k)%set_id(k)
+            call MEANLINEarray(k)%set_coordx(dim,k)
+        end do
+    
+        ! extracting information from NACA digits 
+        airfoil_data1 = real(airfoil%data(1),8)/100.0
+        airfoil_data2 = real(airfoil%data(2),8)/10.0
+    
+        ! calculate airfoil mean line point discretisation along y-axis
+        !     y coord
+        !     gradient [dy] => theta
+        k = 1 ! initialising data for the loop
+    
+        do while(MEANLINEarray(k)%coords(1)<airfoil_data2)
+            call MEANLINEarray(k)%set_coordy_leading(airfoil_data1,airfoil_data2)
+            call MEANLINEarray(k)%set_gradient_leading(airfoil_data1,airfoil_data2)
+            k = k + 1
+        end do
+    
+        do i=k,dim ! loop starts counting from k
+            call MEANLINEarray(i)%set_coordy_trailing(airfoil_data1,airfoil_data2)
+            call MEANLINEarray(i)%set_gradient_trailing(airfoil_data1,airfoil_data2)
+        end do
+    
+        MEANLINEarray(dim)%coords = (/ 1.0, 0.0 /) ! mean-line end point coords
+    
+        ! thickness
+        do k=1,dim
+            call MEANLINEarray(k)%set_thickness(airfoil%data(3)) 
+        end do
+        ! coordx|coordy
+        do k=1,dim
+            call MEANLINEarray(k)%compute_UPcoords(coordxUP(k),coordyUP(k))
+        end do
+        do k=1,dim
+            call MEANLINEarray(k)%compute_DOWNcoords(coordxDW(k),coordyDW(k))
+        end do
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! MEAN LINE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        ! closure coords
+        coordxUP(dim)                = 1
+        coordyUP(dim)                = 0
+        coordxDW(dim)                = 1
+        coordyDW(dim)                = 0
+        MEANLINEarray(dim)%coords(1) = 1
+        MEANLINEarray(dim)%coords(2) = 0
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            !!!!!!!!!!!!!!!!!!!!!!!!! PANEL DATA ALLOCATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ! panel array allocation data -> LOWER AIRFOIL PART
+                do k=1,dim-1
+                    call PANELarray(k)%set_id(k)
+                    call PANELarray(k)%set_coords(coordxDW(dim-k+1),coordyDW(dim-k+1),&
+                                                  coordxDW(dim-k),coordyDW(dim-k))
+                    call PANELarray(k)%set_position('DW')
+                end do
+                ! panel array allocation data -> UPPER AIRFOIL PART
+                do k=1,dim-1
+                    call PANELarray(dim+k-1)%set_id(dim+k-1)
+                    call PANELarray(dim+k-1)%set_coords(coordxUP(k),coordyUP(k),&
+                                                  coordxUP(k+1),coordyUP(k+1))
+                    call PANELarray(dim+k-1)%set_position('UP')
+                end do
+            !!!!!!!!!!!!!!!!!!!!!!!!! PANEL DATA ALLOCATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL PROPERTIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ! compute segments length -> length doesn't vary with rotation and translation 
+                do k=1,2*dim-2
+                    call PANELarray(k)%compute_length()
+                end do
+                ! compute panel angle between x-axis and the tangent vector direction
+                do k=1,2*dim-2
+                    call PANELarray(k)%set_angle()
+                end do
+                ! compute segments tangent and normal versors
+                do j=1,2*dim-2
+                    call PANELarray(j)%compute_tangent_and_normal()  
+                end do
+                ! check on leading edge panels
+                call check_LE_panels(PANELarray,dim)
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL PROPERTIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                 
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL ROTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                if(alpha == 0.0)then 
+                    ! compute inverse rotation matrix for each panel
+                    do j=1,2*dim-2
+                        call PANELarray(j)%compute_ROT()
+                    end do 
+                else  
+                ! this procedure computes the rotation of the airfoil in space 
+                    ! this procedure rotates the tangent vector of the airfoil
+                    do j=1,2*dim-2                   
+                        call rot(PANELarray(j)%tangent(1),PANELarray(j)%tangent(2),alpha)
+                    end do
+                    ! this procedure rotates the normal vector of the airfoil 
+                    do j=1,2*dim-2                   
+                        call rot(PANELarray(j)%normal(1),PANELarray(j)%normal(2),alpha)
+                    end do
+                    ! this procedure rotates the airfoil points of the airfoil
+                    do j=1,2*dim-2
+                        call rot(PANELarray(j)%coords1(1),PANELarray(j)%coords1(2),alpha)
+                        call rot(PANELarray(j)%coords2(1),PANELarray(j)%coords2(2),alpha)
+                    end do
+                    ! this procedure rotates the airfoil meanline 
+                    do j=1,dim
+                        call rot(MEANLINEarray(j)%coords(1),MEANLINEarray(j)%coords(2),alpha)
+                    end do
+                    ! this procedure computes the variation of the panel angle
+                    ! !!! PAY ATTENTION !!! the angle to vary is in the opposite direction of the convention
+                    ! ---> an angle alpha > 0 will result on the system as the different of such angle
+                    do j=1,2*dim-2
+                        PANELarray(j)%angle = PANELarray(j)%angle - alpha
+                    end do
+                    ! this procedure computes the inverse rotation matrix used in the integral function
+                    do j=1,2*dim-2
+                        call PANELarray(j)%compute_ROT()
+                    end do
+                end if
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL ROTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL TRANSLATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                airfoil%transl = transl
+                
+                ! translation process                        
+                do j=1,2*dim-2
+                    PANELarray(j)%coords1 = PANELarray(j)%coords1 + transl
+                    PANELarray(j)%coords2 = PANELarray(j)%coords2 + transl
+                end do
+
+                do j=1,dim
+                    MEANLINEarray(j)%coords = MEANLINEarray(j)%coords + transl
+                end do
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL TRANSLATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!! MIDPOINT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! compute segments middle points 
+            !  -> middle-points depend on actual wing-points coordinates
+            do j=1,2*dim-2
+                call PANELarray(j)%compute_midpoint('noprt')
+            end do
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!! MIDPOINT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        !!!!!!!!!!!!!!!!!!!!!!! SAVING & GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!
+            ! storing data
+            ! call ask_and_save(airfoil,PANELarray,MEANLINEarray)
+
+            ! printing data
+            ! call GNUplot_print(airfoil,PANELarray,MEANLINEarray,GNUplot_coord_data,GNUplot_mean_data,GNUplot_tg_norm) 
+        !!!!!!!!!!!!!!!!!!!!!!! SAVING & GRAPHICS !!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        ! data deallocation procedure
+        deallocate(coordxUP) 
+        deallocate(coordyUP)
+        deallocate(coordxDW)
+        deallocate(coordyDW)
+        deallocate(MEANLINEarray)
+
+        PANELsize = 2*dim-2
+
+        call write_formatted('[','normal','OK','green','] -- airfoil geometry generated','normal')
+
+    end subroutine airfoil_CL
+
     subroutine compute_field(PANEL_array,PANELsize,solution,V,P0,rho,alpha,filename)
     ! this subroutine computes the velocity field of the system after have computed the values of every singularity [gamma; sigma(i)]     
         use PANEL_object
@@ -731,6 +1015,10 @@ module cp
                 ! computing pressure
                 pressure = P0 + 0.5*rho*(V**2 - norm_vel**2)  
                 
+                if(pressure < -1e-1)then
+                    pressure = P0 + 0.5*rho*V**2
+                end if
+
                 ! writing data in FLOWfield.dat
                 ! x_coord, y_coords, x_vel, y_vel, velocity_norm, pressure    
                 write(1,*) dummy_panel%midpoint(1), dummy_panel%midpoint(2), &

@@ -5,9 +5,9 @@ program beta_angle
     implicit none 
 
     ! initializing variables
-    real(kind=8) :: beta, acosbeta
-    real(kind=8) :: theta
-    real(kind=8) :: r1mod, r2mod
+    real(kind=8)                :: beta, acosbeta
+    real(kind=8)                :: theta
+    real(kind=8)                :: r1mod, r2mod
     real(kind=8),dimension(2)   :: N1, N2, T, r1, r2, midpoint
     real(kind=8),dimension(2,2) :: ROT
 
@@ -15,7 +15,6 @@ program beta_angle
     read(*,*) N1(1), N1(2)
     read(*,*) N2(1), N2(2)
     read(*,*) T(1), T(2)
-
 
     midpoint = (N1 + N2)/2.0
 

@@ -28,11 +28,8 @@ module ask_module
         select case(selection_type)
             case(1)  
                 do while(x==1)
-                    print*, 'to compute Cp       vs X --> type(1)'
-                    print*, 'to compute pressure vs X --' 
-                    print*, '           velocity vs X --> type(2)'
-                    print*, '           Cp       vs X --'
-                    print*, 'to compute Cl       vs X --> type(3)'
+                    print*, 'to compute Cp vs X     --> type(1)'
+                    print*, 'to compute Cl vs alpha --> type(2)'
                     read*, selection
 
                     select case (selection)
@@ -45,20 +42,10 @@ module ask_module
                             x   = 0
 
                         case(2)
-                            print*, 'type ambient pressure P0 [Pa] '
-                            read*, P0
-                            print*, 'type air velocity at infinity [m/s]'
-                            read*, V
-                            print*, 'type air density [kg/m**3]   -- method hp: constant along the airfoil'
-                            read*, rho
-                            print*, 'type airfoil angle of attack -- AOA [deg]'
-                            read*, alpha1
-
-                            x = 0
-                        
-                        case(3)
                             call ask_angle(start_angle,end_angle,dim)
-                            V = 1
+                            V   = 1
+                            rho = 1
+                            P0  = 1
                             x = 0
 
                         case default 
@@ -75,42 +62,13 @@ module ask_module
                 read*,  alpha2     
 
             case default 
-                
-                do while(x==1)
-                    print*, 'to compute Cp       vs X --> type(1)'
-                    print*, 'to compute pressure vs X --' 
-                    print*, '           velocity vs X --> type(2)'
-                    print*, '           Cp       vs X --'
-                    read*, selection
-
-                    select case (selection)
-                        case(1)
-                            print*, 'type airfoil angle of attack -- AOA [deg]'
-                            read*, alpha1
-                            V   = 1
-                            rho = 1 
-                            P0  = 1
-                            x   = 0
-
-                        case(2)
-                            print*, 'type ambient pressure P0 [Pa] '
-                            read*, P0
-                            print*, 'type air velocity at infinity [m/s]'
-                            read*, V
-                            print*, 'type air density [kg/m**3]   -- method hp: constant along the airfoil'
-                            read*, rho
-                            print*, 'type airfoil angle of attack -- AOA [deg]'
-                            read*, alpha1
-
-                            x = 0
-                        
-                        case default 
-                            print*, 'you have selected an invalid action', new_line('(A)'), 'type again'
-
-                    end select 
-              
-                end do
-
+                print*, 'to compute Cp vs X'
+                print*, 'type airfoil angle of attack -- AOA [deg]'
+                read*, alpha1
+                V   = 1
+                rho = 1 
+                P0  = 1
+        
         end select  
 
         alpha1 = alpha1/180.0*pi
@@ -144,13 +102,13 @@ module ask_module
 
     end subroutine ask_method  
 
-    subroutine ask_angle(start_angle,end_angle,dim)
+    subroutine ask_angle(start_angle,end_angle,angle_num)
         use FOUL
         implicit none 
 
         integer(kind=4),intent(inout) :: start_angle
         integer(kind=4),intent(inout) :: end_angle
-        integer(kind=4),intent(inout) :: dim
+        integer(kind=4),intent(inout) :: angle_num
         
         
         call write_formatted('SETTING ANGLE SEQUENCE','yellow')
@@ -160,15 +118,16 @@ module ask_module
         print*, 'type the end AOA of the sequence'
         read*, end_angle
         print*, 'type # of discretization points'
-        read*, dim
+        read*, angle_num
 
     end subroutine ask_angle
 
     subroutine ask_to_continue_cp(i)
+        ! this subroutine asks the user if wants to continue with a new study
         implicit none
         character(len=1)              :: resp
         integer(kind=4),intent(inout) :: i 
-        
+         
         print*,  new_line('(A)')        
         print*, 'do you want to create a new study? [Y\n]'
         read*, resp

@@ -210,9 +210,6 @@ module airfoilgenerator
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL TRANSLATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PANEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            ! print airfoil data 
-            call airfoil%print_data()
             
             !!!!!!!!!!!!!!!!!!!!!!!!!!!! MIDPOINT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 ! compute segments middle points 

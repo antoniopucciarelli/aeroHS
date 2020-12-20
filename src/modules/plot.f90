@@ -2,23 +2,34 @@ module plot
 
     contains
 
-    subroutine plot_cp(cp_vec,PANEL_array,PANELsize)
+    subroutine plot_cp(cp_vec,PANEL_array,PANELsize,alpha)
     ! this subroutine plots the cp numbers over the aifoil geometry
         use FOUL
         use PANEL_object
+        use discretization_module
         implicit none
 
         integer(kind=4),intent(in)                   :: PANELsize
         real(kind=8),dimension(PANELsize),intent(in) :: cp_vec
         type(panel),dimension(PANELsize),intent(in)  :: PANEL_array
         integer(kind=4)                              :: i
+        real(kind=8),dimension(2)                    :: position_vector1
+        real(kind=8),dimension(2)                    :: position_vector2
+        real(kind=8),intent(in)                      :: alpha
 
         open(unit=1,file='cp_gnuplot.dat',status='replace')
 
         ! saving vectors
         do i=1,PANELsize/2
-            write(1,*) PANEL_array(i)%get_midpointx(), - cp_vec(i), &
-                       PANEL_array(PANELsize/2+i)%get_midpointx(), - cp_vec(PANELsize/2+i)
+            
+            position_vector1 = PANEL_array(i)%midpoint
+            position_vector2 = PANEL_array(i+PANELsize/2)%midpoint
+
+            call rot(position_vector1(1),position_vector1(2),-alpha)  
+            call rot(position_vector2(1),position_vector2(2),-alpha)  
+
+            write(1,*) position_vector1(1), - cp_vec(i), &
+                       position_vector2(1), - cp_vec(PANELsize/2+i)
         end do
 
         call system('gnuplot -p CP_plot.plt')
