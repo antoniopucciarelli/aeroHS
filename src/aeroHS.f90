@@ -29,7 +29,6 @@ program aeroHS
     type(panel),dimension(:),allocatable    :: PANEL_array1
     type(panel),dimension(:),allocatable    :: PANEL_array2 
     type(panel),dimension(:),allocatable    :: GROUNDpanel
-    integer(kind=4)                         :: MEANsize
     real(kind=8),dimension(:,:),allocatable :: matrix
     real(kind=8),dimension(:),allocatable   :: vector     
     real(kind=8),dimension(:),allocatable   :: solution
@@ -39,16 +38,18 @@ program aeroHS
     real(kind=8),dimension(:),allocatable   :: cp_vec1
     real(kind=8),dimension(:),allocatable   :: cp_vec2 
     real(kind=8),dimension(:,:),allocatable :: cl_alpha
-    integer(kind=4)                         :: PANELsize      = 0
-    integer(kind=4)                         :: PANELsize1     = 0
-    integer(kind=4)                         :: PANELsize2     = 0
-    integer(kind=4)                         :: maxsize        = 0
     real(kind=8)                            :: alpha          = 0.0
     real(kind=8)                            :: alpha1         = 0.0
     real(kind=8)                            :: alpha2         = 0.0
     real(kind=8)                            :: V              = 0.0
     real(kind=8)                            :: P0             = 0.0
     real(kind=8)                            :: rho            = 0.0
+    real(kind=8)                            :: CL             = 0.0
+    integer(kind=4)                         :: MEANsize       = 0
+    integer(kind=4)                         :: PANELsize      = 0
+    integer(kind=4)                         :: PANELsize1     = 0
+    integer(kind=4)                         :: PANELsize2     = 0
+    integer(kind=4)                         :: maxsize        = 0
     integer(kind=4)                         :: start_angle    = 0
     integer(kind=4)                         :: end_angle      = 0
     integer(kind=4)                         :: dim            = 0
@@ -56,7 +57,6 @@ program aeroHS
     integer(kind=4)                         :: selection_type = 0
     integer(kind=4)                         :: i              = 1
     integer(kind=4)                         :: GROUNDsize
-    real(kind=8)                            :: CL
     character(len=30)                       :: filename
     character(len=30)                       :: filename1
     character(len=30)                       :: filename2
@@ -114,8 +114,8 @@ program aeroHS
             cp_vec = compute_cp(Vvec,V,PANELsize)
             
             ! compute CL value 
-            CL = compute_cl(cp_vec,PANEL_array,PANELsize)
-            print*, 'CL value = ', CL
+            CL = compute_cl(solution(PANELsize+1),PANEL_array,PANELsize)
+            print*, 'CL value                  = ', CL
 
             !!!!!!!!!!!!!!!!!!! COMPUTING VELOCITY FIELD !!!!!!!!!!!!!!!!!!!
             ! high demanding process 
@@ -134,10 +134,10 @@ program aeroHS
             deallocate(Vvec)
             deallocate(cp_vec)
             deallocate(vector)
-            deallocate(solution)
-            deallocate(PANEL_array)
-            deallocate(MEAN_array)
             deallocate(matrix)
+            deallocate(solution)
+            deallocate(MEAN_array)
+            deallocate(PANEL_array)
 
         else if(selection == 2)then
 
@@ -182,11 +182,11 @@ program aeroHS
         
         ! computing Cl
         ! 1st airfoil 
-        CL = compute_cl(cp_vec1,PANEL_array1,PANELsize1)
-        print*, '1st airfoil Cl = ', CL
+        CL = compute_cl(solution(PANELsize1+1),PANEL_array1,PANELsize1)
+        print*, '1st airfoil Cl                = ', CL
         ! 2nd airfoil
-        CL = compute_cl(cp_vec2,PANEL_array2,PANELsize2)
-        print*, '2nd airfoil Cl = ', CL
+        CL = compute_cl(solution(PANELsize1+PANELsize2+2),PANEL_array2,PANELsize2)
+        print*, '2nd airfoil Cl                = ', CL
         
         ! computing velocity at y = 0
         call  compute_midflow(PANELsize1,PANELsize2,PANEL_array1,PANEL_array2,solution,V,real(0.0,8))
@@ -199,13 +199,13 @@ program aeroHS
         ! deallocation process
         deallocate(matrix)
         deallocate(vector)
-        deallocate(PANEL_array1)
-        deallocate(PANEL_array2)
+        deallocate(cp_vec1)
+        deallocate(cp_vec2)
         deallocate(solution) 
         deallocate(MEAN_array1)
         deallocate(MEAN_array2)
-        deallocate(cp_vec1)
-        deallocate(cp_vec2)
+        deallocate(PANEL_array1)
+        deallocate(PANEL_array2)
 
     else if(selection_type == 3)then 
 
@@ -253,17 +253,17 @@ program aeroHS
         call compute_airfoilFIELD(solution,PANEL_array,GROUNDpanel,PANELsize,GROUNDsize,cp_vec,P0,real(0.0,8),V,rho,panel_type)
                     
         ! compute CL value 
-        CL = compute_cl(cp_vec,PANEL_array,PANELsize)
+        CL = compute_cl(solution(PANELsize+1),PANEL_array,PANELsize)
         print*, 'CL value = ', CL    
 
         ! deallocation process
-        deallocate(PANEL_array)
-        deallocate(GROUNDpanel)
-        deallocate(MEAN_array)
-        deallocate(solution)
         deallocate(matrix)
         deallocate(vector)
         deallocate(cp_vec)        
+        deallocate(solution)
+        deallocate(MEAN_array)
+        deallocate(GROUNDpanel)
+        deallocate(PANEL_array)
 
     end if 
 

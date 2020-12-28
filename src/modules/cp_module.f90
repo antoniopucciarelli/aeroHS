@@ -471,8 +471,7 @@ module cp
 
         compute_vel = matmul(matrix, solution) + vector 
         
-        print*, 'total circulation (GAMMA) = ',   circulation 
-        print*, 'Cl                        = ', - circulation * 2 
+        print*, 'total circulation (GAMMA) = ', circulation 
 
     end function compute_vel
 
@@ -504,39 +503,26 @@ module cp
 
     end function compute_cp
 
-    function compute_cl(cp_vec,PANEL_array,PANELsize)
+    function compute_cl(gamma_val,PANEL_array,PANELsize)
     ! this function compute the cl coefficient at a defined angle of attack 
         use PANEL_object
         use math_module
         implicit none 
 
-        integer(kind=4),intent(in)                   :: PANELsize 
-        type(panel),dimension(PANELsize),intent(in)  :: PANEL_array
-        real(kind=8),dimension(PANELsize),intent(in) :: cp_vec
-        real(kind=8)                                 :: compute_cl 
-        real(kind=8)                                 :: panel_length
-        real(kind=8)                                 :: S 
-        real(kind=8),dimension(2)                    :: N1 
-        real(kind=8),dimension(2)                    :: N2
-        integer(kind=4)                              :: i
+        integer(kind=4),intent(in)                  :: PANELsize 
+        type(panel),dimension(PANELsize),intent(in) :: PANEL_array
+        real(kind=8),intent(in)                     :: gamma_val
+        real(kind=8)                                :: compute_cl 
+        real(kind=8)                                :: panel_length
+        integer(kind=4)                             :: i
 
         compute_cl = 0.0
         
         do i=1,PANELsize 
+            compute_cl = compute_cl + gamma_val*PANEL_array(i)%get_length() 
+        end do
 
-            panel_length = PANEL_array(i)%get_length()
-
-            if(PANEL_array(i)%get_position() == 'UP')then
-                panel_length = - panel_length
-            end if
-
-            compute_cl = compute_cl + panel_length * cp_vec(i)
-
-        end do 
-
-        S = norm(PANEL_array(PANELsize/2+1)%coords1 - PANEL_array(1)%coords1)
-
-        compute_cl = compute_cl / S
+        compute_cl = - compute_cl * 2
 
     end function compute_cl
 
@@ -631,17 +617,9 @@ module cp
             
             ! solving system
             solution = solve_matrix(matrix,vector,PANELsize)
-            
-           ! ! computing velocity 
-           ! Vvec     = compute_vel(solution,PANELsize,PANEL_array,real(1.0,8),real(0.0,8))
-           ! 
-           ! ! computing Cp
-           ! cp_vec   = compute_cp(Vvec,real(1.0,8),PANELsize)
 
             ! computing Cl wrt alpha
             cl_alpha(i,1) = alpha_angle(i)*180/pi                    ! conversion to deg angle
-           ! cl_alpha(i,2) = compute_cl(cp_vec,PANEL_array,PANELsize)
-                
             cl_alpha(i,2) = 0.0
 
             do j=1,PANELsize 

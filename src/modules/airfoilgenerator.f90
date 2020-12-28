@@ -280,30 +280,14 @@ module airfoilgenerator
                 x = 0
 
             else 
-                ! print*, 'load data from an existing .dat file created by previous runs  --'
-                ! print*, '--- PAY ATTENTION --- in case of loading file, the airfoil AOA --'
                 ! print*, '    is referred to the saved airfoil NOT the AOA just typed    --> type(1)'
                 print*, 'create a 4 digits airfoil from scratch'
-                !read*, selection_type
-
-                !select case(selection_type)
-                !    case(1)
-                !        ! extracting data from .dat files from data created by airfoilgenerator.f90
-                !        call manage_data(airfoil,MEAN_array,PANEL_array,MEANsize,PANELsize,filename)
-                !        
-                !        x = 0
-                !
-                !    case(2)
-                        ! making new geometry form scratch 
-                        call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, & 
+                       
+                call make_airfoil(PANELsize,MEAN_array,PANEL_array,airfoil,alpha,GNUplot_coord_data,GNUplot_mean_data, & 
                                           GNUplot_tg_norm)
                 
                         x = 0 
 
-                !    case default 
-                !        print*, 'you have selected an invalid action', new_line('(A)'), 'type again'
-
-                !end select 
             end if 
         !end do 
 
