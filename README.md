@@ -23,8 +23,7 @@ cd bin/
 ### Physics
 
 The Hess-Smith method treats **incompressible inviscid potential** flows:
-![formula](https://render.githubusercontent.com/render/math?math=\boldsymbol{\nabla \cdot u}  = 0 \\
-    \boldsymbol{\nabla \times u = 0})
+<img src="https://render.githubusercontent.com/render/math?math=\boldsymbol{\nabla \cdot u}  = 0 \\ \boldsymbol{\nabla \times u = 0}">
 
 This brings solving the Laplace problem for the scalar function $\phi_{(x, y)}$:
 
