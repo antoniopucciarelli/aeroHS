@@ -28,14 +28,12 @@ The Hess-Smith method treats **incompressible inviscid potential** flows:
 
 <img src="https://render.githubusercontent.com/render/math?math=\color{red}\boldsymbol{\nabla \times u = 0}">
 
-This brings solving the Laplace problem for the scalar function $\phi_{(x, y)}$:
+This brings solving the Laplace problem for the scalar function <img src="https://render.githubusercontent.com/render/math?math=\color{red} \phi_{(x, y)}">:
 
-$$
-    \text{If } \boldsymbol{u = \nabla} \phi \rightarrow \boldsymbol{\nabla \times ( \nabla} \phi \boldsymbol{) \equiv 0} \text{, so the irrotationality of the flow is satisfied by } \phi \\
-    \text{In order to satisfy incompressibility } \boldsymbol{\nabla \cdot (\nabla} \phi \boldsymbol{)} = \boldsymbol{\Delta} \phi = 0
-$$
+<img src="https://render.githubusercontent.com/render/math?math=\color{red} \text{If } \boldsymbol{u = \nabla} \phi \rightarrow \boldsymbol{\nabla \times ( \nabla} \phi \boldsymbol{) \equiv 0} \text{, so the irrotationality of the flow is satisfied by } \phi">
+<img src="https://render.githubusercontent.com/render/math?math=\color{red}  \text{In order to satisfy incompressibility } \boldsymbol{\nabla \cdot (\nabla} \phi \boldsymbol{)} = \boldsymbol{\Delta} \phi = 0" >
 
-In order to solve the problem, it is used a first order discretization for the potential $\phi$ made by source/sink and vortex distribution on airfoil's panels. The Hess-Smith method uses a constant distribution of vorticity over the panels and a variable distribution of sources/sinks. The Runge-Kutta condition is applied at the trailing edge of the airfoil(s) in order to solve the problem.
+In order to solve the problem, it is used a first order discretization for the potential <img src="https://render.githubusercontent.com/render/math?math=\color{red} \phi"> made by source/sink and vortex distribution on airfoil's panels. The Hess-Smith method uses a constant distribution of vorticity over the panels and a variable distribution of sources/sinks. The Runge-Kutta condition is applied at the trailing edge of the airfoil(s) in order to solve the problem.
 
 ### Program
 
