@@ -37,7 +37,7 @@ In order to solve the problem, it is used a first order discretization for the p
 
 ### Program
 
-Flow simulation and $C_P$ study of **NACA0012**.
+Flow simulation and Cp study of **NACA0012**.
 
 Once in ``` bin/ ```:
 
