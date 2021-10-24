@@ -23,7 +23,8 @@ cd bin/
 ### Physics
 
 The Hess-Smith method treats **incompressible inviscid potential** flows:
-<img src="https://render.githubusercontent.com/render/math?math=\color{red} \boldsymbol{\nabla \cdot u}  = 0")>
+
+<img src="https://render.githubusercontent.com/render/math?math=\color{red} \boldsymbol{\nabla \cdot u}  = 0">
 
 <img src="https://render.githubusercontent.com/render/math?math=\color{red}\boldsymbol{\nabla \times u = 0}">
 
