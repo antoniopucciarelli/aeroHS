@@ -1,4 +1,9 @@
-# aeroHS
+---
+title: "aeroHS"
+output:
+  github_document:
+    pandoc_args: --webtex
+---
 
 This program computes the flow properties around **NACA 4 digits** airfoils. It uses the **Hess-Smith** method to solve the flow field.
 
