@@ -25,6 +25,11 @@ cd bin/
 
 The Hess-Smith method treats **incompressible inviscid potential** flows:
 
+$$
+  \boldsymbol{\nabla} \cdot \boldsymbol{u} = 0 \\
+  \boldsymbol{\nabla} \times \boldsymbol{u} = \boldsymbol{0} \\
+$$
+
 <img src="https://render.githubusercontent.com/render/math?math=\color{red} \boldsymbol{\nabla \cdot u}  = 0">
 
 <img src="https://render.githubusercontent.com/render/math?math=\color{red}\boldsymbol{\nabla \times u = 0}">
